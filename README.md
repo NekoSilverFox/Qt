@@ -115,4 +115,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 - Crrl + I 自动对齐
 - Ctrl + Shift + 上下 整行移动
 - F4 同名之间的 .h .cpp 切换
-- 
+
+
+
+**Qt 中所有的窗口叫 Widget**

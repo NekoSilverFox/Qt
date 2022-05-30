@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);  // 应用程序对象 a，在 Qt 中有且仅有一个
     Widget w;  // 窗口对象
-    w.show();  // 弹出窗口（窗口默认不会弹出）
+    w.show();  // 弹出窗口，以新窗口的的方式弹出（窗口默认不会弹出）
 
     return a.exec(); // a.exec() 进入消息循环机制，避免程序一闪而过，类似死循环
 }
