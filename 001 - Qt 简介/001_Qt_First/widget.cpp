@@ -1,5 +1,7 @@
 #include "widget.h"
-#include <QPushButton>>
+#include "mybutton.h"
+#include <QPushButton>
+#include <QDebug>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)  // 将参数传给父类，让父类进行一个初始化
@@ -22,10 +24,15 @@ Widget::Widget(QWidget *parent)
     this->setWindowTitle("Qt第一个窗口");  // 窗口的标题
     this->setFixedSize(600, 400);  // 设置固定窗口大小
 
+    /* Qt 在一定程度上简化了内内存的回收机制（对象树），也就是有时候不需要手动 Delete */
+    MyButton* btn3 = new MyButton;
+    btn3->setParent(this);
+    btn3->move(50, 50);
 
 }
 
 Widget::~Widget()
 {
+    qDebug() << "Widget 析构了";
 }
 

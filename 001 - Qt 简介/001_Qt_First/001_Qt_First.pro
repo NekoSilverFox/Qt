@@ -10,9 +10,11 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    mybutton.cpp \
     widget.cpp
 
 HEADERS += \
+    mybutton.h \
     widget.h
 
 # Default rules for deployment.
