@@ -119,3 +119,28 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 **Qt 中所有的窗口叫 Widget**
+
+
+
+# 控件
+
+## Weight 窗口
+
+| 函数名                      | 描述                                           |
+| --------------------------- | ---------------------------------------------- |
+| setWindowTitle(QStrging)    | 设置窗口标题                                   |
+| setFixedSize(hight, weight) | 设置固定的窗口大小（设置之后窗口不能人为缩放） |
+|                             |                                                |
+|                             |                                                |
+
+
+
+## QPushButton
+
+| 函数名                | 描述           |
+| --------------------- | -------------- |
+| setParent(obj)        | 设置按钮的父类 |
+| move(x, y)            | 移动按钮       |
+| resize(hight, weight) | 设置按钮大小   |
+| setText(QString)      | 设置按钮文本   |
+
