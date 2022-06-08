@@ -27,7 +27,16 @@ Widget::Widget(QWidget *parent)
     /* Qt 在一定程度上简化了内内存的回收机制（对象树），也就是有时候不需要手动 Delete */
     MyButton* btn3 = new MyButton;
     btn3->setParent(this);
-    btn3->move(50, 50);
+    btn3->setText("关闭窗口");
+    btn3->move(100, 50);
+
+    /*使用信号和槽机制通过点击按钮关闭窗口
+        信号和槽：
+        connect(信号的发送方, 信号, 信号接收方, 动作-槽)
+    */
+    connect(btn3, &MyButton::clicked,  // 其实是调用的父类的 QPushButton::clicked
+            this, &Widget::close);
+
 
 }
 
