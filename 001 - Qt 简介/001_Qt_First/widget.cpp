@@ -32,7 +32,7 @@ Widget::Widget(QWidget *parent)
 
     /*使用信号和槽机制通过点击按钮关闭窗口
         信号和槽：
-        connect(信号的发送方, 信号, 信号接收方, 动作-槽)
+        connect(信号的发送方, 信号的地址, 信号接收方, 动作-槽的地址)
     */
     connect(btn3, &MyButton::clicked,  // 其实是调用的父类的 QPushButton::clicked
             this, &Widget::close);

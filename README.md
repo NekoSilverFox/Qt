@@ -135,6 +135,16 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 
+**信号和槽**
+
+| 槽    | 描述     |
+| ----- | -------- |
+| close | 关闭窗口 |
+|       |          |
+|       |          |
+
+
+
 ## QPushButton
 
 | 函数名                | 描述           |
@@ -143,4 +153,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 | move(x, y)            | 移动按钮       |
 | resize(hight, weight) | 设置按钮大小   |
 | setText(QString)      | 设置按钮文本   |
+
+
+
+| 信号    | 描述 |
+| ------- | ---- |
+| clicked | 点击 |
+|         |      |
+|         |      |
 
