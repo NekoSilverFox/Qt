@@ -42,6 +42,21 @@ Widget::Widget(QWidget *parent)
             student, pfunc_student_void);  // 信号连接槽，将老师饿了的信号连接至学生请客
 
 
+    /* 信号和槽是可以断开的 */
+//    disconnect(teacher, pfunc_teacher_void,
+//              student, pfunc_student_void);
+
+    /*【重点】
+     * 一个信号可以连接多个槽
+     * 多个信号是可以连接同一个槽函数
+     * 信号和槽函数的参数类型必须一一对应，但信号的参数个数可以大于槽函数（反之不可以）
+     */
+    QPushButton* btn2 = new QPushButton("按钮 2", this);
+    btn2->move(100, 0);
+    connect(btn2, &QPushButton::clicked,
+            this, &Widget::close);
+
+
     /* 链接之后还是不够的，要将触发老师饿了的信号 */
     classOver();
 }
