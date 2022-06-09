@@ -21,6 +21,9 @@ public slots:
      */
     void treat();  // 请客
 
+    /* 重载 */
+    void treat(QString food_name);
+
 };
 
 #endif // STUDENT_H

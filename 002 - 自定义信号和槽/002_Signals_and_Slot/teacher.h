@@ -18,6 +18,10 @@ signals:
      */
     void hungry();
 
+    /* 重载 */
+    void hungry(QString food_name);
+
+
 };
 
 #endif // TEACHER_H
