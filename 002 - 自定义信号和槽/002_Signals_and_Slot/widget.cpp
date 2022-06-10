@@ -33,7 +33,7 @@ Widget::Widget(QWidget *parent)
      * 一旦进行了重载就要使用函数指针，以使 connect 知道要调用哪一个函数
      */
     QPushButton* btn = new QPushButton("下课啦", this);
-    this->resize(600, 400);
+    this->resize(600, 400);  // 以构造函数指定父类的，需要调整下窗口大小，避免窗口过小
     void (Teacher::*pfunc_teacher_void) (void) = &Teacher::hungry;
     void (Student::*pfunc_student_void) (void) = &Student::treat;
     connect(btn, &QPushButton::clicked,
@@ -51,10 +51,24 @@ Widget::Widget(QWidget *parent)
      * 多个信号是可以连接同一个槽函数
      * 信号和槽函数的参数类型必须一一对应，但信号的参数个数可以大于槽函数（反之不可以）
      */
+    connect(btn, &QPushButton::clicked,
+            this, &Widget::close);
+
     QPushButton* btn2 = new QPushButton("按钮 2", this);
     btn2->move(100, 0);
     connect(btn2, &QPushButton::clicked,
             this, &Widget::close);
+
+    /*【重点】Qt4 之下信号和槽的写法
+     * 优点：
+     *  - 参数类型比较直观，发生重载也不需要函数指针
+     *
+     * 缺点:
+     *  - 参数的匹配不会进行检测
+     *  - 不检测的原因：SIGNAL() 和 SLOT() 下会把里面的带代码作为字符串处理
+    */
+    connect(teacher, SIGNAL(hungry(QString)),
+            student, SLOT(treat(QString)));
 
 
     /* 链接之后还是不够的，要将触发老师饿了的信号 */
