@@ -36,10 +36,16 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionopenDialog"/>
+   <addaction name="actionQMessageBox"/>
   </widget>
   <action name="actionopenDialog">
    <property name="text">
     <string>打开对话框</string>
+   </property>
+  </action>
+  <action name="actionQMessageBox">
+   <property name="text">
+    <string>Qt提供的消息框</string>
    </property>
   </action>
  </widget>
