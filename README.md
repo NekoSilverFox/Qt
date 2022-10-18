@@ -626,6 +626,62 @@ MainWindow::~MainWindow()
 
 
 
+# 对话框 QDialog
+
+对话框是 GUI 程序中不可或缺的组成部分。很多不能或者不适合放入主窗口的功能组件都必须放在对话框中设置。**对话框通常会是一个顶层窗口，出现在程序最上层，用于实现短期任务或者简洁的用户交互。**
+
+Qt 中使用 QDialog 类实现对话框。就像主窗口一样，我们通常会设计一个类继承 QDialog。QDialog（及其子类，以及所有Qt::Dialog类型的类）的对于其 parent 指针都有额外的解释：**如果 parent 为 NULL，则该对话框会作为一个顶层窗口，否则则作为其父组件的子对话框（此时，其默认出现的位置是 parent 的中心）。顶层窗口与非顶层窗口的区别在于，顶层窗口在任务栏会有自己的位置，而非顶层窗口则会共享其父组件的位置。**
+
+**对话框分为==模态对话框==和==非模态对话框==。**
+
+
+
+- **模态对话框**，在[堆]上创建，对话框弹出之后会通过 `.exec()` 阻塞，会阻塞同一应用程序中其它窗口的输入。
+
+    模态对话框很常见，比如“打开文件”功能。你可以尝试一下记事本的打开文件，当打开文件对话框出现时，我们是不能对除此对话框之外的窗口部分进行操作的。
+
+- 与此相反的是**非模态对话框**，在[栈]上创建，对话框通过 `.show()` 弹出，弹出后依旧可以操作其他窗口。
+
+    例如查找对话框，我们可以在显示着查找对话框的同时，继续对记事本的内容进行编辑。
+
+    **注意：非模态对话框一定要通过 `dialog_2->setAttribute(Qt::WA_DeleteOnClose);`设置 Dialog 对话框在关闭时释放内存！如果不设置只会在 MainWindow 退出时才释放，这可能造成内存泄漏** 
+
+```c++
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    /* 我们使用 Lambda 表达式的形式弹出 Dialog对话框，并连接信号和槽 */
+    connect(ui->actionopenDialog, &QAction::triggered,
+            this, [=](){
+
+        /** Dialog 对话框有两种：
+         *  - 模态对话框：    在[堆]上创建，对话框弹出之后会通过 `.exec()` 阻塞，无法操作其他窗口
+         *  - 非模态对话框：  在[栈]上创建，对话框通过 `.show()` 弹出，弹出后依旧可以操作其他窗口
+         */
+
+#if 0
+        /* 模态对话框 */
+        QDialog dialog_1(this);
+        dialog_1.resize(80, 60);
+        dialog_1.exec();  // 阻塞
+#endif
+
+        /* 非模态对话框 */
+        QDialog* dialog_2 = new QDialog(this);  // 创建到堆上，不然 Lambda 表达式结束就会给释放了（窗口一闪而过）
+        dialog_2->resize(100, 80);
+        dialog_2->setAttribute(Qt::WA_DeleteOnClose);  // 【重点】设置 Dialog 对话框在关闭时释放内存！如果不设置只会在 MainWindow 退出时才释放，这可能造成内存泄漏
+        dialog_2->show();
+
+
+        qDebug() << "Lambda 表达式内部";
+
+    }); // END_LAMBDA
+}
+```
+
 
 
 
