@@ -4,6 +4,8 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QLabel>
+#include <QDockWidget>
+#include <QTextEdit>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -52,7 +54,25 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar->addPermanentWidget(label_2);  // 添加在状态栏右侧;
 
 
+
+
+    /* 铆接部件 - 可以有多个 */
+    QDockWidget* dock = new QDockWidget(this);
+    this->addDockWidget(Qt::RightDockWidgetArea, dock);   // 添加到窗口，并设置默认停靠位置，【重点】这个位置是相对于核心部件的
+    dock->setAllowedAreas(Qt::RightDockWidgetArea);
+
+
+
+
+    /* 核心部件 - 只能有一个, 这里的 QTextEdit 控件作为举例使用 */
+    QTextEdit* textEdit = new QTextEdit(this);
+    this->setCentralWidget(textEdit);  // 【重点】将 TextEdit 设置为核心部件
+
+
 }
+
+
+
 
 MainWindow::~MainWindow()
 {

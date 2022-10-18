@@ -489,15 +489,37 @@ MainWindow::MainWindow(QWidget *parent)
 
 ## 铆接部件
 
+铆接部件 `QDockWidget`，也称浮动窗口，可以有多个。
+
 **注意：铆接部件的位置是相对于核心部件的！围绕着核心部件的，而不是相对于整个窗口！**
+
+
+
+**常用成员函数：**
+
+| 函数名                                           | 介绍                  |
+| ------------------------------------------------ | --------------------- |
+| QDockWidget* dock = new QDockWidget(this);       | 创建一个铆接部件 dock |
+| void setAllowedAreas(Qt::DockWidgetAreas areas); | 设置停靠位置          |
+
+
 
 
 
 ## 核心部件（中心部件）
 
+除了以上几个部件（Widget），中心显示的部件都可以作为核心部件，例如一个记事本文件，可以利用QTextEdit做核心部件
+
+```c++
+/* 核心部件 - 只能有一个, 这里的 QTextEdit 控件作为举例使用 */
+QTextEdit* textEdit = new QTextEdit(this);
+this->setCentralWidget(textEdit);  // 【重点】将 TextEdit 设置为核心部件
+```
 
 
 
+**核心部件与铆接部件代码及结果：**
+![image-20221018162054408](doc/pic/README/image-20221018162054408.png)
 
 
 
