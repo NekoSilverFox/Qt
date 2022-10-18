@@ -86,6 +86,9 @@ Widget::Widget(QWidget *parent)
     connect(btn3, &QPushButton::clicked,
             [=](){teacher->hungry("糖醋里脊3");});  // OK
 
+//    connect(btn3, &QPushButton::clicked,
+//            teacher, teacher->hungry("糖醋里脊4"));  // ERROR
+
     /* 点击按钮 关闭窗口 */
     connect(btn3, &QPushButton::clicked,
             this, [=](){this->close();});

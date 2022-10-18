@@ -93,3 +93,17 @@ Widget::~Widget()
 {
 }
 
+#include <QKeyEvent>
+void Widget::keyPressEvent(QKeyEvent* event)
+{
+    qDebug() << "[Check out of switch] Key event: " << event->key();
+    switch (event->key())
+    {
+    case Qt::Key_Up:
+        qDebug() << "Key event: KEY UP";
+        break;
+    default:
+        qDebug() << "Key event: " << event->key();
+        break;
+    }
+}
