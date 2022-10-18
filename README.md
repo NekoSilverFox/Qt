@@ -525,9 +525,102 @@ this->setCentralWidget(textEdit);  // 【重点】将 TextEdit 设置为核心�
 
 
 
+# UI 设计
+
+**注意，我们在 ui 设计界面添加的窗体或者空间（也就是不是用过代码创建的），要通过 `ui->` 进行访问**
+
+比如在 mainwindow.cpp 中访问我们为我们创建的按钮添加图标：
+
+```c++
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    ui->actionNewFile->setIcon(QIcon(":_文件路径__"));  // 通过 `ui->` 访问
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+```
 
 
 
+## 添加 Action
+
+<img src="doc/pic/README/image-20221018171003019.png" alt="image-20221018171003019" style="zoom:50%;" />
+
+
+
+## 添加 ToolBar
+
+<img src="doc/pic/README/image-20221018170737986.png" alt="image-20221018170737986" style="zoom:50%;" />
+
+之后可以将创建好的 Action 直接拖拽到 ToolBar 中
+
+<img src="doc/pic/README/image-20221018170902491.png" alt="image-20221018170902491" style="zoom:50%;" />
+
+
+
+
+
+# 资源文件
+
+**Qt 资源系统是一个跨平台的资源机制，用于将程序运行时所需要的资源以二进制的形式存储于可执行文件内部。**如果你的程序需要加载特定的资源（图标、文本翻译等），那么，将其放置在资源文件中，就再也不需要担心这些文件的丢失。也就是说，如果你将资源以资源文件形式存储，它是会编译到可执行文件内部。
+
+使用 Qt Creator 可以很方便地创建资源文件。我们可以在工程上点右键，选择“添加新文件…”，可以在 Qt 分类下找到“Qt 资源文件”：
+
+
+
+1. 添加 Qt 资源文件，这个文件是用于管理我们资源文件的
+
+    <img src="doc/pic/README/image-20221018171522579.png" alt="image-20221018171522579" style="zoom:50%;" />
+
+2. 为 Qt 资源文件起一个名字
+
+    ![image-20221018171651888](doc/pic/README/image-20221018171651888.png)
+
+3. 以文本的形式打开刚刚创建的 `.qrc` 文件
+
+    <img src="doc/pic/README/image-20221018171743063.png" alt="image-20221018171743063" style="zoom: 67%;" />
+
+4. 将我们用到的资源（图片、视频等）放置在当前 Qt 工程的目录下
+
+5. 添加前缀并且添加资源文件
+
+    <img src="doc/pic/README/image-20221018172146656.png" alt="image-20221018172146656" style="zoom:50%;" />
+
+    
+
+    **我们给这个文件取一个“别名”，以后就以这个别名来引用这个文件。使用别名的好处是，如果更改了文件名，代码中使用别名的地方不需要修改。具体做法是，选中这个文件，添加别名信息：**
+
+    <img src="doc/pic/README/image-20221018172452507.png" alt="image-20221018172452507" style="zoom:50%;" />
+
+    
+
+    添加后的资源文件将出现在 Qt 资源文件之下:
+
+    ![image-20221018172310863](doc/pic/README/image-20221018172310863.png)
+
+    
+
+6. 使用资源文件
+
+    要符合格式 `:前缀名/文件名`，我们可以直接右键文件拷贝使用
+
+    <img src="doc/pic/README/image-20221018173232309.png" alt="image-20221018173232309" style="zoom:50%;" />
+
+运行起来有以下效果：
+
+![image-20221018173318599](doc/pic/README/image-20221018173318599.png)
 
 
 
