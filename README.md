@@ -332,8 +332,8 @@ C++11中的Lambda表达式**用于定义并创建匿名的函数对象**，以�
 QMainWindow是一个为用户提供**主窗口程序**的类，包含：
 
 - **一个**菜单栏（menu bar）、
-- 多个工具栏(tool bars)、
-- 多个锚接部件(dock widgets)，铆接部件就是有时候可以拖拽出来的那个东西
+- 多个工具栏(tool bars)、工具栏就是有时候可以拖拽出来的那个东西
+- 多个铆接部件(dock widgets)，也是浮动窗口
 - **一个**状态栏(status bar)、
 - **一个**中心部件(central widget)
 
@@ -343,7 +343,7 @@ QMainWindow是一个为用户提供**主窗口程序**的类，包含：
 
 ## 菜单栏
 
-一个主窗口**最多只有一个菜单栏**。位于主窗口顶部、主窗口标题栏下面。
+一个主窗口**最多只有==一个==菜单栏**。位于主窗口顶部、主窗口标题栏下面。
 
 - 创建**菜单栏**，通过 QMainWindow 类的 `QMenuBar* menuBar() const` 函数获取主窗口菜单栏指针
 
@@ -417,7 +417,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 ## 工具栏
 
-主窗口的工具栏上可以有**多个**工具条，通常采用一个菜单对应一个工具条的的方式，也可根据需要进行工具条的划分。
+主窗口的工具栏上可以有**==多个==**工具条，通常采用一个菜单对应一个工具条的的方式，也可根据需要进行工具条的划分。
 
 - 通过 `new QToolBar(this);` 的方式创建一个 ToolBar
 
@@ -464,6 +464,36 @@ MainWindow::MainWindow(QWidget *parent)
 ![image-20221018130933834](doc/pic/README/image-20221018130933834.png)
 
 
+
+## 状态栏
+
+**状态栏 `QStatusBar` 也只能最多有==一个==**
+
+派生自 `QWidget` 类，使用方法与 `QWidget` 类似，`QStatusBar` 类常用成员函数：
+
+| 函数名                                                       | 介绍                     |
+| ------------------------------------------------------------ | ------------------------ |
+| void addWidget(QWidget * widget, int stretch = 0)            | 添加小部件               |
+| int  insertWidget(int index, QWidget * widget, int stretch = 0) | 插入小部件               |
+| void removeWidget(QWidget * widget)                          | 删除小部件               |
+| void addWidget(QWidget *widget, int stretch = 0);            | 在状态栏左侧添加一个控件 |
+| void addPermanentWidget(QWidget *widget, int stretch = 0);   | 在状态栏右侧添加一个控件 |
+
+
+
+代码及效果：
+
+![image-20221018160534346](doc/pic/README/image-20221018160534346.png)
+
+
+
+## 铆接部件
+
+**注意：铆接部件的位置是相对于核心部件的！围绕着核心部件的，而不是相对于整个窗口！**
+
+
+
+## 核心部件（中心部件）
 
 
 

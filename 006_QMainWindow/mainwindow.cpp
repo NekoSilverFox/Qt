@@ -2,6 +2,8 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QToolBar>
+#include <QStatusBar>
+#include <QLabel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,6 +38,18 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->setMovable(true);                   // 【总开关】开启或者关闭工具栏的可【移动性】
     toolBar->setFloatable(false);                // 设置可【浮动性】为否
 
+
+
+
+    /* 状态栏 - 只能有一个 */
+    QStatusBar* statusBar = this->statusBar();
+    this->setStatusBar(statusBar);
+
+    QLabel* label_1 = new QLabel("左侧 Label", this);  // 创建一个 Label，【复习】后面的 this 表示将这个 label 添加到对象树中
+    statusBar->addWidget(label_1);  // 添加在状态栏左侧
+
+    QLabel* label_2 = new QLabel("右侧 Label", this);
+    statusBar->addPermanentWidget(label_2);  // 添加在状态栏右侧;
 
 
 }
