@@ -39,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     /* 标准对话框 QMessageBox 介绍（Static 成员）：*/
     connect(ui->actionQMessageBox, &QAction::triggered,
             this, [=](){
-//        QMessageBox::about(this, "static QMessageBox::about 函数", "text部分"); // 会弹出一段文字
-//        QMessageBox::aboutQt(this, "title部分");  // 会弹出 Qt 的声明
+        QMessageBox::about(this, "static QMessageBox::about 函数", "text部分"); // 会弹出一段文字
+        QMessageBox::aboutQt(this, "title部分");  // 会弹出 Qt 的声明
 
         QMessageBox::critical(this, "[Title]错误！", "[Text]critical");        // 错误对话框
         QMessageBox::warning(this, "[Title]警告！", "[Text]warning");          // 警告对话框
