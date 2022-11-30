@@ -74,6 +74,13 @@ MainWindow::MainWindow(QWidget *parent)
                             qDebug() << "选择的颜色为：" << color.red() << color.green() << color.blue();
     });
 
+
+
+
+
+
+
+
     //======================================================文件对话框==================================================================
     connect(ui->actionOpenFile, &QAction::triggered,
             this, [=](){

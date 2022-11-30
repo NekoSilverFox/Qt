@@ -801,9 +801,48 @@ msgBox 是一个建立在栈上的QMessageBox实例。我们设置其
 
 ## 颜色对话框
 
+- 包含头文件 `#include <QColorDialog>`
+
+`QColor color = QColorDialog::getColor(QColor(0, 255, 255));`，调用系统对话框，获取颜色值
+
+- 参数 1：默认选择的颜色值 (r, g, b)
+- 返回一个 `QColor` 颜色值
+
+
+
+**示例代码：**
+
+![image-20221130145334893](doc/pic/README/image-20221130145334893.png)
+
 
 
 ## 文件对话框
 
+Qt 的标准对话框提供静态函数，用于返回一个模态对话框，包含头文件 `#include <QFileDialog>`
 
+```c++
+QString getOpenFileName(QWidget * parent = 0,									// 父窗口
+                        const QString & caption = QString(),	// 对话框标题
+                        const QString & dir = QString(),			// 对话框打开时的默认目录, “.” 代表程序运行目录
+                        const QString & filter = QString(),		// 过滤器, 过滤器就是用于过滤特定的后缀名。如果我们使用“Image Files(*.jpg *.png)”，则只能显示后缀名是 jpg 或者 png 的文件。如果需要多个过滤器，使用“;;”分割，比如“JPEG Files(*.jpg);;PNG Files(*.png)”；
+                        QString * selectedFilter = 0,					// 默认选择的过滤器；
+                        Options options = 0)	// 对话框的一些参数设定。比如只显示文件夹等等，它的取值是enum QFileDialog::Option，每个选项可以使用 | 运算组合起来。
+```
+
+**QFileDialog::getOpenFileName()返回值是选择的文件路径。**我们将其赋值给 path。通过判断 path 是否为空，可以确定用户是否选择了某一文件。只有当用户选择了一个文件时，我们才执行下面的操作。
+
+在saveFile()中使用的QFileDialog::getSaveFileName()也是类似的。使用这种静态函数，在 Windows、Mac OS 上面都是直接调用本地对话框，但是 Linux 上则是QFileDialog自己的模拟。这暗示了，如果你不使用这些静态函数，而是直接使用QFileDialog进行设置，那么得到的对话框很可能与系统对话框的外观不一致。这一点是需要注意的。
+
+
+
+**示例代码：**
+
+```c++
+connect(ui->actionOpenFile, &QAction::triggered,
+        this, [=](){
+          QString path = QFileDialog::getOpenFileName(this, "打开文件狐", "/Users/fox/雪狸的文件", "(*.png *.jpg)");
+          qDebug() << "选择的文件路径为：" << path;
+        });
+
+```
 
