@@ -843,6 +843,39 @@ connect(ui->actionOpenFile, &QAction::triggered,
           QString path = QFileDialog::getOpenFileName(this, "打开文件狐", "/Users/fox/雪狸的文件", "(*.png *.jpg)");
           qDebug() << "选择的文件路径为：" << path;
         });
-
 ```
 
+
+
+
+
+# 窗口布局
+
+- **要想移除一个widget 上下的非常大的间隙，要将 ==sizePolicy -> 垂直策略 -> 设为Fixed==**
+
+    ![image-20221130161212231](doc/pic/README/image-20221130161212231.png)
+    
+
+- **要想让 widget 保持==几行几列== 的均匀布局，点击上面的==栅格布局==按钮**
+
+    ![image-20221130161456003](doc/pic/README/image-20221130161456003.png)
+    
+
+- 要想在改变窗口大小时还保证布局，要使用右侧的==弹簧控件==。并在右侧自定义弹簧长度
+
+    ![image-20221130161827092](doc/pic/README/image-20221130161827092.png)
+    
+
+- **要想移除控件之间==边缘==的间隙，需要将 Layout 设置为 0**
+
+    ![image-20221130162043745](doc/pic/README/image-20221130162043745.png)
+
+    
+
+- **要想使窗口保持固定大小，可以将默认、最小、最大设置为一样**
+
+    ![image-20221130162353685](doc/pic/README/image-20221130162353685.png)
+
+    
+
+- 
