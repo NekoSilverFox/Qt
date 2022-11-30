@@ -720,7 +720,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-## 标准消息对话框 QMessageBox
+## 消息对话框 QMessageBox
 
 QMessageBox用于显示消息提示。我们一般会使用其提供的几个 static 函数：
 
@@ -798,6 +798,12 @@ msgBox 是一个建立在栈上的QMessageBox实例。我们设置其
 - 然后我们使用了exec()是其成为一个模态对话框，根据其返回值进行相应的操作。
 
 
+
+## 颜色对话框
+
+
+
+## 文件对话框
 
 
 

@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QDialog>
 #include <QMessageBox>
+#include <QColor>
+#include <QColorDialog>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -61,6 +64,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     }); // END_LAMBDA
+
+    //======================================================颜色对话框==================================================================
+    connect(ui->actionColor, &QAction::triggered,
+            this, [](){
+                            QColor color = QColorDialog::getColor(QColor(0, 255, 255));
+                            qDebug() << "选择的颜色为：" << color.red() << color.green() << color.blue();
+    });
 }
 
 MainWindow::~MainWindow()

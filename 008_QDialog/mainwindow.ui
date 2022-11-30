@@ -37,6 +37,7 @@
    </attribute>
    <addaction name="actionopenDialog"/>
    <addaction name="actionQMessageBox"/>
+   <addaction name="actionColor"/>
   </widget>
   <action name="actionopenDialog">
    <property name="text">
@@ -46,6 +47,11 @@
   <action name="actionQMessageBox">
    <property name="text">
     <string>Qt提供的消息框</string>
+   </property>
+  </action>
+  <action name="actionColor">
+   <property name="text">
+    <string>选择颜色</string>
    </property>
   </action>
  </widget>
