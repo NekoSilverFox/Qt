@@ -5,6 +5,8 @@
 #include <QColor>
 #include <QColorDialog>
 
+#include <QFileDialog>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -71,6 +73,15 @@ MainWindow::MainWindow(QWidget *parent)
                             QColor color = QColorDialog::getColor(QColor(0, 255, 255));
                             qDebug() << "选择的颜色为：" << color.red() << color.green() << color.blue();
     });
+
+    //======================================================文件对话框==================================================================
+    connect(ui->actionOpenFile, &QAction::triggered,
+            this, [=](){
+                            QString path = QFileDialog::getOpenFileName(this, "打开文件狐", "/Users/fox/雪狸的文件", "(*.png *.jpg)");
+                            qDebug() << "选择的文件路径为：" << path;
+    });
+
+
 }
 
 MainWindow::~MainWindow()

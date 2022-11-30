@@ -38,6 +38,7 @@
    <addaction name="actionopenDialog"/>
    <addaction name="actionQMessageBox"/>
    <addaction name="actionColor"/>
+   <addaction name="actionOpenFile"/>
   </widget>
   <action name="actionopenDialog">
    <property name="text">
@@ -52,6 +53,11 @@
   <action name="actionColor">
    <property name="text">
     <string>选择颜色</string>
+   </property>
+  </action>
+  <action name="actionOpenFile">
+   <property name="text">
+    <string>打开文件</string>
    </property>
   </action>
  </widget>
