@@ -877,6 +877,12 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 # 窗口布局
 
+对于 Qt 中的窗口布局，建议使用 ==Containers -> Widget-> 自定义布局==。不建议使用 Latouts！
+
+<img src="doc/pic/README/image-20221130163634192.png" alt="image-20221130163634192" style="zoom:50%;" />
+
+
+
 - **要想移除一个widget 上下的非常大的间隙，要将 ==sizePolicy -> 垂直策略 -> 设为Fixed==**
 
     ![image-20221130161212231](doc/pic/README/image-20221130161212231.png)
@@ -905,3 +911,18 @@ connect(ui->actionOpenFile, &QAction::triggered,
     
 
 - 
+
+
+
+# 控件及工具
+
+| 控件                                                         | 效果                                                         | 说明                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 文字按钮<br />![image-20221130164311887](doc/pic/README/image-20221130164311887.png) | ![image-20221130164629710](doc/pic/README/image-20221130164629710.png) | 文字按钮（可设置图标）                                       |
+| 图标按钮<br />![image-20221130164712179](doc/pic/README/image-20221130164712179.png) | ![image-20221130165040902](doc/pic/README/image-20221130165040902.png) | 多用于**只显示图标**的按钮，可配置是否是透明风格或者显示按钮文字<br />![image-20221130165149890](doc/pic/README/image-20221130165149890.png) |
+| 单选框<br />![image-20221130165204798](doc/pic/README/image-20221130165204798.png) | ![image-20221130165733293](doc/pic/README/image-20221130165733293.png) | 可与 Group Box 搭配使用进行分组，避免交叉<br />可使用代码设置默认选中那个 `ui->rBtnMan->setChecked(true)` |
+| 多选框、复选框<br />![image-20221130165745758](doc/pic/README/image-20221130165745758.png) | ![image-20221130233207709](doc/pic/README/image-20221130233207709.png) | 可与 Group Box 搭配使用进行分组，根据是否选中有不同的状态（State）<br />`0 - 未选中`，`1 - 半选中`，`2 - 全选中`。可作为 `Qt::QCheckBox::stateChanged` 进行监听，但是要想让复选框支持半选中需要开启以下选项：<br />![image-20221130230942923](doc/pic/README/image-20221130230942923.png) |
+|                                                              |                                                              |                                                              |
+|                                                              |                                                              |                                                              |
+|                                                              |                                                              |                                                              |
+
