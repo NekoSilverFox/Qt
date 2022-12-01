@@ -13,6 +13,16 @@
   <property name="windowTitle">
    <string>Widget</string>
   </property>
+  <widget class="QListWidget" name="listWidget">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>30</y>
+     <width>256</width>
+     <height>192</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

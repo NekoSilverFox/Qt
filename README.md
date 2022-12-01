@@ -887,17 +887,14 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
     ![image-20221130161212231](doc/pic/README/image-20221130161212231.png)
     
-
 - **要想让 widget 保持==几行几列== 的均匀布局，点击上面的==栅格布局==按钮**
 
     ![image-20221130161456003](doc/pic/README/image-20221130161456003.png)
     
-
 - 要想在改变窗口大小时还保证布局，要使用右侧的==弹簧控件==。并在右侧自定义弹簧长度
 
     ![image-20221130161827092](doc/pic/README/image-20221130161827092.png)
     
-
 - **要想移除控件之间==边缘==的间隙，需要将 Layout 设置为 0**
 
     ![image-20221130162043745](doc/pic/README/image-20221130162043745.png)
@@ -931,4 +928,45 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 ## Item Widgets
+
+**List Widget：**
+
+- ![image-20221201110928964](doc/pic/README/image-20221201110928964.png)
+
+-  List Widget 可以向里面添加 Items
+
+    - `QListWidgetItem`
+
+        `QListWidgetItem` 可以作为一行文字或者图标。并且可以设置对齐方式
+
+        ```c++
+        /* List Widget 接受一个 QListWidgetItem */
+        QListWidgetItem* item = new QListWidgetItem("我是一行文字");
+        item->setTextAlignment(Qt::AlignHCenter);  // 设置为 QListWidgetItem 中的文字居中对齐
+        ui->listWidget->addItem(item);
+        ```
+
+        
+
+    - `QStringList`
+
+        如果想让 List Widget 一次性接受多个项，可以使用 QStringList，QstringList 类似于 QList\<QString>，有自己重载的 `<<` 运算符。**所以可以使用匿名对象进行方便的传入。**但是 `QStringList` 不能设置对齐方式
+
+        ```c++
+        /* 如果想让 List Widget 一次性接受多个项，可以使用 QStringList，QstringList 类似于 QList<QString>，有自己重载的 `<<` 运算符 */
+        QStringList stringList;
+        stringList << "赤橙黄绿青蓝紫" << "谁持彩练当空舞" << "雨后复斜阳" << "关山阵阵苍";
+        ui->listWidget->addItems(stringList);  // 【重点】函数是 addItem`S`
+        
+        
+        /* 使用匿名对象 */
+        ui->listWidget->addItems(QStringList() << "Do not go gentle into that good night"
+                                 << "Old age should burn and rave at close of day"
+                                 << "Rage, rage against the dying of the light");
+        ```
+
+- **示例：**
+    ![image-20221201111710072](doc/pic/README/image-20221201111710072.png)
+
+
 
