@@ -929,7 +929,7 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 ## Item Widgets
 
-**List Widget：**
+### List Widget
 
 - ![image-20221201110928964](doc/pic/README/image-20221201110928964.png)
 
@@ -970,3 +970,62 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
+****
+
+### Tree Widget
+
+![image-20221201111917031](doc/pic/README/image-20221201111917031.png)
+
+**使用方式：**
+
+1. **设置 `Tree Widget` 的头（顶端的标签）**
+
+    接受 Items，可以使用 `QStringList` 的匿名对象
+
+    ```c++
+    ui->treeWidget->setHeaderLabels(QStringList() << "名称" << "词");
+    ```
+
+    
+
+    
+
+2. **添加顶层项目（行，index）**
+    顶层项目的类型是 `QTreeWidgetItem`
+
+    ```c++
+    QTreeWidgetItem* twiCat = new QTreeWidgetItem(QStringList() << "猫");
+    QTreeWidgetItem* twiDog = new QTreeWidgetItem(QStringList() << "狗");
+    QTreeWidgetItem* twiFox = new QTreeWidgetItem(QStringList() << "狐");
+    ```
+
+    
+
+    
+
+3. **将顶层项目添加到 `Tree Widget`**
+
+    ```c++
+    ui->treeWidget->addTopLevelItem(twiCat);
+    ui->treeWidget->addTopLevelItem(twiDog);
+    ui->treeWidget->addTopLevelItem(twiFox);
+    ```
+
+    
+    
+
+4. **为顶层项目添加子项目（孩子）**
+
+    顶层项目的子项目类型也是 `QTreeWidgetItem`
+
+    ```c++
+    QTreeWidgetItem* orangeCat = new QTreeWidgetItem(QStringList() << "橘猫" << "橙色的猫");
+    QTreeWidgetItem* blackCat = new QTreeWidgetItem(QStringList() << "橘猫" << "黑色的猫");
+    QTreeWidgetItem* russiaCat = new QTreeWidgetItem(QStringList() << "俄罗斯猫" << "爱喝伏特加的猫");
+    
+    twiCat->addChild(orangeCat);  // 第一种方式，一次只添加一个
+    twiCat->addChild(blackCat);
+    twiCat->addChild(russiaCat);
+    ```
+
+![image-20221201181640740](doc/pic/README/image-20221201181640740.png)

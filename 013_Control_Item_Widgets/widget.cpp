@@ -28,6 +28,35 @@ Widget::Widget(QWidget *parent)
                                            << "Rage, rage against the dying of the light");
 
 
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Tree Widget @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    /* 1. 设置 `Tree Widget` 的头（顶端的标签） */
+    ui->treeWidget->setHeaderLabels(QStringList() << "品种" << "说明");
+
+    /* 2. 添加顶层项目 */
+    QTreeWidgetItem* twiCat = new QTreeWidgetItem(QStringList() << "猫");
+    QTreeWidgetItem* twiDog = new QTreeWidgetItem(QStringList() << "狗");
+    QTreeWidgetItem* twiFox = new QTreeWidgetItem(QStringList() << "狐");
+
+
+    /* 3. 将顶层项目添加到 `Tree Widget` */
+    ui->treeWidget->addTopLevelItem(twiCat);
+    ui->treeWidget->addTopLevelItem(twiDog);
+    ui->treeWidget->addTopLevelItem(twiFox);
+
+
+    /* 4. 为顶层项目添加子项目（孩子） */
+    QTreeWidgetItem* orangeCat = new QTreeWidgetItem(QStringList() << "橘猫" << "橙色的猫");
+    QTreeWidgetItem* blackCat = new QTreeWidgetItem(QStringList() << "橘猫" << "黑色的猫");
+    QTreeWidgetItem* russiaCat = new QTreeWidgetItem(QStringList() << "俄罗斯猫" << "爱喝伏特加的猫");
+
+    twiCat->addChild(orangeCat);  // 第一种方式，一次只添加一个
+    twiCat->addChild(blackCat);
+    twiCat->addChild(russiaCat);
+
+
+
+
 }
 
 Widget::~Widget()
