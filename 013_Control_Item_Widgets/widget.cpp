@@ -117,7 +117,7 @@ Widget::Widget(QWidget *parent)
         }
         else
         {
-            ui->tableWidget->removeRow(resFind.first()->row());  // 根据结果第一行的行号删除
+            ui->tableWidget->removeRow(resFind.first()->row());  // 【根据行号删除】根据结果第一行的行号删除
         }
     });
 
