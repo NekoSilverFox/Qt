@@ -1137,3 +1137,76 @@ connect(ui->actionOpenFile, &QAction::triggered,
 **效果及代码：**
 
 ![image-20221201203516994](doc/pic/README/image-20221201203516994.png)
+
+
+
+## 其他常用控件
+
+### Scroll Area
+
+![image-20221203140013717](doc/pic/README/image-20221203140013717.png)
+
+如果控件不够大，（在做布局之后）会自动增加滚动条
+
+![image-20221203140110110](doc/pic/README/image-20221203140110110.png)
+
+## Tool Box
+
+![image-20221203140151611](doc/pic/README/image-20221203140151611.png)
+
+- 类似于 QQ 的分组：“朋友，家人，黑名单...”
+
+要想修改==页==的名称和插入页，采用以下方式：
+
+![image-20221203140946678](doc/pic/README/image-20221203140946678.png)
+
+
+
+## Tab Widget
+
+类似于浏览器的多==标签==页
+
+![image-20221203140743369](doc/pic/README/image-20221203140743369.png)
+
+要想修改标签的名称和插入标签，采用以下方式：
+
+![image-20221203141237375](doc/pic/README/image-20221203141237375.png)
+
+
+
+### Stacked Widget
+
+![image-20221203141508675](doc/pic/README/image-20221203141508675.png)
+
+类似于 Qt 左侧的切换窗，**每点击一个标签，其实就是切换了一个栈容器**
+
+![image-20221203141501241](doc/pic/README/image-20221203141501241.png)
+
+
+
+**我们可以把之前做的东西都放到这个 Stacked Widget 中，鼠标拖动过去就好**
+
+![image-20221203141650280](doc/pic/README/image-20221203141650280.png)
+
+
+
+**通过小箭头切换栈容器，如果页不够用就添加一个。**但是注意，==这个小箭头只是辅助我们设计的，程序运行起来之后，并不会显示，所以我们可以通过自定义按钮，通过 `currentStack` 切换栈==
+
+![image-20221203142009053](doc/pic/README/image-20221203142009053.png)
+
+
+
+
+
+**效果及代码：**
+
+![image-20221203144032185](doc/pic/README/image-20221203144032185.png)
+
+
+
+
+
+
+
+
+
