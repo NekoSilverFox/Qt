@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/pic">
+        <file>舔屏.gif</file>
+        <file>nekosilverfox.png</file>
+    </qresource>
+</RCC>

@@ -515,7 +515,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 ## 铆接部件
 
-铆接部件 `QDockWidget`，也称浮动窗口，可以有==多个==。
+![image-20221203144419409](doc/pic/README/image-20221203144419409.png)
+
+铆接部件 `QDockWidget`，也称==浮动窗口==，可以有==多个==。
 
 **注意：铆接部件的位置是相对于核心部件的！围绕着核心部件的，而不是相对于整个窗口！**
 
@@ -1150,7 +1152,7 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 ![image-20221203140110110](doc/pic/README/image-20221203140110110.png)
 
-## Tool Box
+### Tool Box
 
 ![image-20221203140151611](doc/pic/README/image-20221203140151611.png)
 
@@ -1162,7 +1164,7 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
-## Tab Widget
+### Tab Widget
 
 类似于浏览器的多==标签==页
 
@@ -1190,7 +1192,7 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
-**通过小箭头切换栈容器，如果页不够用就添加一个。**但是注意，==这个小箭头只是辅助我们设计的，程序运行起来之后，并不会显示，所以我们可以通过自定义按钮，通过 `currentStack` 切换栈==
+**通过小箭头切换栈容器，如果页不够用就添加一个。**但是注意，==这个小箭头只是辅助我们设计的，程序运行起来之后，并不会显示，所以我们可以通过自定义按钮，通过 `stackedWidget->setCurrentIndex(索引)` 切换栈==
 
 ![image-20221203142009053](doc/pic/README/image-20221203142009053.png)
 
@@ -1204,9 +1206,115 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
+### Combo Box
+
+![image-20221203144554453](doc/pic/README/image-20221203144554453.png)
+
+**下拉框**，可以通过代码添加值：
+
+可以通过代码选择当前选中的内容：
+
+- 通过索引：`comboBox->setCurrentIndex(索引);`
+- 通过下拉框中的文字内容：`comboBox->setCurrentText("猫子");`
+
+
+
+**效果及代码：**
+
+![image-20221203145348848](doc/pic/README/image-20221203145348848.png)
+
+
+
+### Font Combo Box
+
+![image-20221203145456249](doc/pic/README/image-20221203145456249.png)
+
+**选择字体**
+
+![image-20221203145525829](doc/pic/README/image-20221203145525829.png)
+
+
+
+### Line Edit
+
+![image-20221203145609404](doc/pic/README/image-20221203145609404.png)
+
+**单行编辑框**
+
+**可以对输入的内容做不同的输入模式：**
+
+![image-20221203145713706](doc/pic/README/image-20221203145713706.png)
+
+- `Normal`，可以正常输入文字内容 ![image-20221203145826876](doc/pic/README/image-20221203145826876.png)
+- `NoEcho`，输入内容但是不显示类似于 Linux 下输入密码的效果 ![image-20221203145938500](doc/pic/README/image-20221203145938500.png)
+- `Password`，会变成小黑圆点 ![image-20221203145956363](doc/pic/README/image-20221203145956363.png)
+- `PasswordEchoOnEdit`，**失去焦点时**才会变成小黑圆点 ![image-20221203150006693](doc/pic/README/image-20221203150006693.png)
+
+
+
+### (Plain) Text Edit
+
+![image-20221203150113188](doc/pic/README/image-20221203150113188.png)
+
+**区别：**
+
+- `Text Edit` 输入内部的文字**可带有格式**，比如颜色、大小、加粗...
+- `Plain Text Edit`  只能输入**纯文本**
+
+
+
+### (Double) Spin Box
+
+点击箭头可以加减，带有 Double 的是可以输入双精度的
+
+![image-20221203150537882](doc/pic/README/image-20221203150537882.png)
+
+
+
+![image-20221203150611547](doc/pic/README/image-20221203150611547.png)
+
+
+
+### (Date/Time) Edit
+
+![image-20221203150856557](doc/pic/README/image-20221203150856557.png)
+
+- `Time Edit`：选择时间
+- `Date Edit`：选择日期
+- `Date/Time Edit`：时间加日期
+
+![image-20221203150842960](doc/pic/README/image-20221203150842960.png)
+
+### Dial
+
+![image-20221203155115323](doc/pic/README/image-20221203155115323.png)
+
+**滚轮**
+
+**效果及代码：**
+
+![image-20221203155956762](doc/pic/README/image-20221203155956762.png)
+
+
+
+**更改样式：**
+
+![image-20221203155432229](doc/pic/README/image-20221203155432229.png)
+
+
+
+### 滚动条
+
+![image-20221203161108507](doc/pic/README/image-20221203161108507.png)
 
 
 
 
 
+### Label
 
+Label 不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图（QMovie）`
+
+**效果及代码：**
+
+![image-20221203162325641](doc/pic/README/image-20221203162325641.png)
