@@ -1313,7 +1313,7 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 ![image-20221203161108507](doc/pic/README/image-20221203161108507.png)
 
-
+**注意：下面的那两种滚动条，父类都是 `QSpinBox`，所以在使用信号和槽的时候要调用父类的**
 
 
 
@@ -1374,4 +1374,78 @@ Label 不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图�
 
 6. 自定义我们封装控件的功能，因为就是编写我们自定义控件的 .h 和 .cpp 文件
 
-7. 
+    ```c++
+    MyWidget::MyWidget(QWidget *parent) :
+        QWidget(parent),
+        ui(new Ui::MyWidget)
+    {
+        ui->setupUi(this);
+    
+        /* QSpinBox变化， Silder 移动 */
+        void(QSpinBox:: * mySpinBoxSignal)(int) = &QSpinBox::valueChanged; // 由于存在重载，所以要使用函数指针，避免调用不明确
+        connect(ui->spinBox, mySpinBoxSignal,
+                ui->horizontalSlider, &QSlider::setValue);
+    
+        /* Silder 移动,QSpinBox变化 */
+        connect(ui->horizontalSlider, &QSlider::valueChanged,
+                ui->spinBox, &QSpinBox::setValue);
+    
+    }
+    ```
+
+    
+
+7. 自定义控件可以提供对外接口
+
+    写在 `MyWidget.h`:
+
+    ```c++
+    public:
+        explicit MyWidget(QWidget *parent = nullptr);
+        ~MyWidget();
+    
+        // 自定义接口
+        void setValue(const int value);
+        int getValue();
+    ```
+
+    写在 `MyWidget.cpp`:
+
+    ```c++
+    // 自定义接口
+    void MyWidget::setValue(const int value)
+    {
+        ui->spinBox->setValue(value);
+    }
+    
+    
+    int MyWidget::getValue()
+    {
+        return ui->spinBox->value();
+    }
+    ```
+
+
+    在主窗口中使用自定义接口：
+
+    ```c++
+    Widget::Widget(QWidget *parent)
+        : QWidget(parent)
+        , ui(new Ui::Widget)
+    {
+        ui->setupUi(this);
+    
+        // 调用自定义控件的自定义接口
+        connect(ui->btnGetValue, &QPushButton::clicked,
+                [=](){qDebug() << "值：" << ui->widget->getValue();});  //【重点】这里的 ui->widget 就是我们的自定义控件
+    
+        connect(ui->btnSetHalf, &QPushButton::clicked,
+                [=](){ui->widget->setValue(50);});
+    }
+    ```
+
+    
+
+
+
+![image-20221203171535255](doc/pic/README/image-20221203171535255.png)

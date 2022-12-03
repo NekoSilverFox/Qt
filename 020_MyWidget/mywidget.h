@@ -15,6 +15,10 @@ public:
     explicit MyWidget(QWidget *parent = nullptr);
     ~MyWidget();
 
+    // 自定义接口
+    void setValue(const int value);
+    int getValue();
+
 private:
     Ui::MyWidget *ui;
 };

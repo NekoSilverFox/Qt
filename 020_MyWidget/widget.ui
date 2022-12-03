@@ -23,6 +23,32 @@
     </rect>
    </property>
   </widget>
+  <widget class="QPushButton" name="btnGetValue">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>150</y>
+     <width>100</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>获取值</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnSetHalf">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>180</y>
+     <width>100</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>设置到一半</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
