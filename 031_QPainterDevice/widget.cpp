@@ -34,17 +34,17 @@ Widget::Widget(QWidget *parent)
 
 
     /// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ QPicture @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//    /* QPicture 作为绘图设备，用于记录、重现绘图【指令】 */
-//    QPicture pic;
-//    QPainter painter3;
+    /* QPicture 作为绘图设备，用于记录、重现绘图【指令】 */
+    QPicture pic;
+    QPainter painter3;
 
-//    painter3.begin(&pic); // 开始记录绘图指令
+    painter3.begin(&pic); // 开始记录绘图指令
 
-//    painter.setPen(QPen(QColor(255, 0, 0)));
-//    painter.drawEllipse(QPoint(150, 150), 50, 50);
+    painter.setPen(QPen(QColor(255, 0, 0)));
+    painter.drawEllipse(QPoint(150, 150), 50, 50);
 
-//    painter3.end(); // 结束记录绘图指令
-//    pic.save("/Users/fox/雪狸的文件/Programma/Qt/031_QPainterDevice/pic.command"); // 保存绘图指令
+    painter3.end(); // 结束记录绘图指令
+    pic.save("/Users/fox/雪狸的文件/Programma/Qt/031_QPainterDevice/pic.command"); // 保存绘图指令，后缀名随意写
 }
 
 Widget::~Widget()

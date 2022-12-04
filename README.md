@@ -1664,3 +1664,8 @@ void Widget::paintEvent(QPaintEvent *)
 | 绘制图片     | `QPainter.drawPixmap(x, y, "FILE")`              |                                    |
 
 > **注意：如果后期对绘图版的状态做了更改，要使用 `update()` 进行更新，就像 OpenGL 那样**
+
+
+
+# 文件读写
+
