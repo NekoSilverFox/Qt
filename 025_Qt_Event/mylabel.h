@@ -29,6 +29,7 @@ public:
     /* 事件拦截 */
     virtual bool event(QEvent* event);
 
+
 signals:
 
 

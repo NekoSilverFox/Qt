@@ -1568,3 +1568,43 @@ bool MyLabel::event(QEvent* event)
 }
 ```
 
+
+
+## 事件过滤器
+
+其实 App 和 Event 之间还可以再进行一层拦截，也就是**事件过滤器**
+
+![image-20221204171416935](doc/pic/README/image-20221204171416935.png)
+
+**使用步骤：**
+
+1. 那个控件需要事件过滤器就给它安装事件过滤器
+
+    ```c++
+    ui->label->installEventFilter(this);
+    ```
+
+    
+
+2. 重写 `eventFilter` 事件
+
+    ```c++
+    /* 事件过滤器 */
+    bool Widget::eventFilter(QObject *object, QEvent *event)
+    {
+        /* 过滤在 `label` 上的`点击`事件 */
+        if (object == ui->label)
+        {
+            if (event->type() == QEvent::MouseButtonPress)
+            {
+                QMouseEvent* mouseEv = static_cast<QMouseEvent*>(event);  // 【复习】将父类转换为子类
+                qDebug() << "事件过滤器::鼠标[按下]了 - " << QString("鼠标当前位置 x: %1, y: %2").arg(mouseEv->x()).arg(mouseEv->y());
+                return true;  // 返回 true 代表拦截
+            }
+        }
+    
+        return QWidget::eventFilter(object, event);  // 其他的事件，交给父类处理
+    }
+    ```
+
+    

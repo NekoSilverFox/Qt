@@ -19,6 +19,10 @@ public:
     /* 定时器事件 */
     void timerEvent(QTimerEvent* event);
 
+
+    /* 事件过滤器 */
+    virtual bool eventFilter(QObject *object, QEvent *event);
+
 private:
     Ui::Widget *ui;
 

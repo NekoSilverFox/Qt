@@ -56,4 +56,3 @@ bool MyLabel::event(QEvent* event)
     return QLabel::event(event);  // 其他事件，让父亲做默认处理
 }
 
-
