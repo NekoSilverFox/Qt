@@ -53,6 +53,16 @@ Widget::Widget(QWidget *parent)
             file.open(QFileDevice::Append);  // 重新指定打开方式，我们要追加一行话
             file.write("冰糖雪狸！！！");
             file.close();
+
+            /// @@@@@@@@@@@@@@@@@@@@@@@ 通过 QFileInfo 读取文件信息 @@@@@@@@@@@@@@@@@@@@@@@
+            QFileInfo info(path);
+            ui->lbPath->setText(info.filePath());
+            ui->lbName->setText(info.fileName());
+            ui->lbSize->setText(QString("%1 Kb").arg(info.size()));
+            ui->lbSuffix->setText(info.suffix());
+            ui->lbCreateTime->setText(QString("创建日期：%1").arg(info.birthTime().toString("yyyy-MM-dd hh:mm:ss")));
+            ui->lbModifTime->setText(QString("修改时间：%1").arg(info.lastModified().toString("yyyy/MM/dd hh:mm:ss")));
+
         }
     });
 }
