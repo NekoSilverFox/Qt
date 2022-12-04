@@ -65,6 +65,46 @@ Widget::Widget(QWidget *parent)
 
         }
     });
+
+    /**
+     * 文件流读写文件
+     * 分类：
+     *    - 文本流（基础数据类型）
+     *    - 数据流（大型 QImage）
+     **/
+    /*@@@@@@@@@@@@@@@@@@@@@@@ 文本流 @@@@@@@@@@@@@@@@@@@@@@@*/
+    QFile file("aaa.txt");
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream textStream(&file);
+    textStream << "冰糖 雪狸" << 123456789;  // 写入
+    file.close();
+
+    file.open(QIODevice::ReadOnly);  // 读取
+    QString str;
+    textStream >> str;  // 【重点】这种方式遇到空格结束！
+    qDebug() << str;
+    qDebug() << textStream.readAll();  // 读取【剩下的】所有
+    file.close();
+
+
+    /*@@@@@@@@@@@@@@@@@@@@@@@ 数据流 @@@@@@@@@@@@@@@@@@@@@@@*/
+    QFile dataFile("bbb.txt");
+    dataFile.open(QIODevice::WriteOnly);
+
+    QDataStream dataStream(&dataFile);  // 【重点】数据流写入的是二进制文件块，而不是明文！
+    dataStream << "冰糖 雪狸" << 987654;  // 【重点】数据流-QDataStream 写入的数据块！！比如这里写入的是 "冰糖 雪狸" 和 987654两个数据块
+    dataFile.close();
+
+    dataFile.open(QIODevice::ReadOnly);
+
+    QString strBlock;
+    int num;
+    dataStream >> strBlock >> num;  // 【重点】读取数据块！！
+    qDebug() << strBlock << num;
+    dataFile.close();
+
+
 }
 
 Widget::~Widget()
