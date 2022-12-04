@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>nekosilverfox.png</file>
+    </qresource>
+</RCC>
