@@ -1446,6 +1446,40 @@ Label 不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图�
 
     
 
-
+**效果及代码：**
 
 ![image-20221203171535255](doc/pic/README/image-20221203171535255.png)
+
+
+
+# 事件
+
+所有的空间都会继承 `QWidget` 中的事件
+
+## 鼠标事件
+
+对于所有控件：
+
+| 事件     | 函数                                                         |
+| -------- | ------------------------------------------------------------ |
+| 鼠标进入 | [virtual protected] void QWidget::enterEvent([[QEnterEvent](https://doc.qt.io/qt-6/qenterevent.html)](https://doc.qt.io/qt-6/qenterevent.html) **event*) |
+| 鼠标离开 | [virtual protected] void QWidget::leaveEvent([QEvent](https://doc.qt.io/qt-6/qevent.html) **event*) |
+| 鼠标移动 | virtual void mouseMoveEvent(QMouseEvent *event);             |
+| 鼠标点击 | virtual void mousePressEvent(QMouseEvent *event);            |
+| 鼠标释放 | virtual void mouseReleaseEvent(QMouseEvent *event);          |
+
+**重点：**
+
+- 通过 `QMouseEvent *event` 可以判断按键、动作等
+
+- 如果要判断==按下==了某个键，因为这是一个==瞬间动作==，所以要用 `event->button() == Qt::XXXXButton` 判断
+
+- 如果要判断是否==一直按着一个键==，因为这是一个==持续动作==，所以要用 `event->buttonS() & Qt::XXXXButton` 判断，
+
+    并且要开启 ` this->setMouseTracking(true);`
+
+
+
+我们可以自己写一个带有鼠标事件的 MyQLabel（继承于 QLabel，QLabel 又继承于 QWidget），在编写完自己的 MyLabel 后我们对原本的 Label 进行提升
+
+![image-20221203234539079](doc/pic/README/image-20221203234539079.png)
