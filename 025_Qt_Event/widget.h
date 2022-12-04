@@ -15,7 +15,15 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
 
+
+    /* 定时器事件 */
+    void timerEvent(QTimerEvent* event);
+
 private:
     Ui::Widget *ui;
+
+    /* 定时器 id 编号 */
+    int timer_id1;
+    int timer_id2;
 };
 #endif // WIDGET_H
