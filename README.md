@@ -1572,6 +1572,10 @@ bool MyLabel::event(QEvent* event)
 
 ## 事件过滤器
 
+> 代码的 diff：
+>
+> https://github.com/NekoSilverFox/Qt/commit/9e780456729bd09f4238a293444573f57ab7b1f6
+
 其实 App 和 Event 之间还可以再进行一层拦截，也就是**事件过滤器**
 
 ![image-20221204171416935](doc/pic/README/image-20221204171416935.png)
@@ -1608,3 +1612,6 @@ bool MyLabel::event(QEvent* event)
     ```
 
     
+
+# 绘图和绘图设备
+
