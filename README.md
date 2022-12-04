@@ -1661,5 +1661,6 @@ void Widget::paintEvent(QPaintEvent *)
 | 移动画家     | `QPainter.translate(QPoint(相对于当前的新位置))` | 默认画家在 QPoint(0, 0) 处开始绘制 |
 | 保存画家状态 | `QPainter.save()`                                |                                    |
 | 恢复画家状态 | `QPainter.restore()`                             | 恢复到上次保存的位置的效果         |
-|              |                                                  |                                    |
+| 绘制图片     | `QPainter.drawPixmap(x, y, "FILE")`              |                                    |
 
+> **注意：如果后期对绘图版的状态做了更改，要使用 `update()` 进行更新，就像 OpenGL 那样**

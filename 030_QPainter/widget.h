@@ -18,6 +18,8 @@ public:
     /* QPainter */
     void paintEvent(QPaintEvent *);
 
+    int posX;
+
 private:
     Ui::Widget *ui;
 };
