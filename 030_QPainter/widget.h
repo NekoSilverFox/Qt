@@ -15,6 +15,9 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
 
+    /* QPainter */
+    void paintEvent(QPaintEvent *);
+
 private:
     Ui::Widget *ui;
 };
