@@ -26,6 +26,9 @@ public:
     /* 重写虚函数：鼠标释放 */
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
+    /* 事件拦截 */
+    virtual bool event(QEvent* event);
+
 signals:
 
 

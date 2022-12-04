@@ -40,3 +40,20 @@ void MyLabel::mouseReleaseEvent(QMouseEvent *event)
 {
     qDebug() << "鼠标释放了 - " << QString("鼠标当前位置 x: %1, y: %2").arg(event->x()).arg(event->y());
 }
+
+
+/* 事件拦截 (鼠标点击) */
+bool MyLabel::event(QEvent* event)
+{
+    /* 拦截鼠标[按下]事件，也就是不会调用上面写的函数了 */
+    if (event->type() == QEvent::MouseButtonPress)
+    {
+        QMouseEvent* mouseEv = static_cast<QMouseEvent*>(event);  // 【复习】将父类转换为子类
+        qDebug() << "Event::鼠标[按下]了 - " << QString("鼠标当前位置 x: %1, y: %2").arg(mouseEv->x()).arg(mouseEv->y());
+        return true;  // 返回 true 代表拦截
+    }
+
+    return QLabel::event(event);  // 其他事件，让父亲做默认处理
+}
+
+
