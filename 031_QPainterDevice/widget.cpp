@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QPainter>
+#include <QPicture>
 
 
 Widget::Widget(QWidget *parent)
@@ -30,6 +31,20 @@ Widget::Widget(QWidget *parent)
     painter2.setPen(QPen(QColor(255, 255, 0)));
     painter2.drawRect(20, 20, 250, 250);
     image.save("/Users/fox/雪狸的文件/Programma/Qt/031_QPainterDevice/res_pix.png");
+
+
+    /// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ QPicture @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//    /* QPicture 作为绘图设备，用于记录、重现绘图【指令】 */
+//    QPicture pic;
+//    QPainter painter3;
+
+//    painter3.begin(&pic); // 开始记录绘图指令
+
+//    painter.setPen(QPen(QColor(255, 0, 0)));
+//    painter.drawEllipse(QPoint(150, 150), 50, 50);
+
+//    painter3.end(); // 结束记录绘图指令
+//    pic.save("/Users/fox/雪狸的文件/Programma/Qt/031_QPainterDevice/pic.command"); // 保存绘图指令
 }
 
 Widget::~Widget()
@@ -56,5 +71,10 @@ void Widget::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.drawImage(QPoint(0, 0), img);
 
-
+    /// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ QPicture @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    /// 重现绘图指令
+    QPicture pic;
+    bool isSucc = pic.load("/Users/fox/雪狸的文件/Programma/Qt/031_QPainterDevice/pic.command");
+    qDebug() << isSucc;
+    painter.drawPicture(QPoint(0, 0), pic);
 }
