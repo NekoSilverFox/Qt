@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>user-group.png</file>
+        <file>nekosilverfox.png</file>
+    </qresource>
+</RCC>
