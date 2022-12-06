@@ -30,13 +30,13 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QTextBrowser" name="textBrowser"/>
+          <widget class="QTextBrowser" name="msgBrowser"/>
          </item>
          <item>
           <widget class="QWidget" name="widget" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QFontComboBox" name="fontComboBox">
+             <widget class="QFontComboBox" name="fontCbx">
               <property name="minimumSize">
                <size>
                 <width>150</width>
@@ -52,7 +52,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboBox">
+             <widget class="QComboBox" name="cbxFontSize">
               <property name="minimumSize">
                <size>
                 <width>50</width>
@@ -110,7 +110,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="btn">
+             <widget class="QToolButton" name="btnBlod">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -129,7 +129,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QToolButton" name="btnItalic">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -148,7 +148,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QToolButton" name="btnUnderLine">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -167,7 +167,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QToolButton" name="btnColor">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -180,7 +180,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_7">
+             <widget class="QToolButton" name="btnSave">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -193,7 +193,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_8">
+             <widget class="QToolButton" name="btnClean">
               <property name="maximumSize">
                <size>
                 <width>40</width>
@@ -209,7 +209,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QTextEdit" name="textEdit">
+          <widget class="QTextEdit" name="msgTextEdit">
            <property name="maximumSize">
             <size>
              <width>16777215</width>
@@ -222,13 +222,21 @@
        </widget>
       </item>
       <item>
-       <widget class="QTableWidget" name="tableWidget">
+       <widget class="QTableWidget" name="usrTbWidget">
         <property name="maximumSize">
          <size>
           <width>180</width>
           <height>16777215</height>
          </size>
         </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <column>
+         <property name="text">
+          <string>用户名</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
@@ -254,9 +262,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="btnExit">
         <property name="text">
-         <string>发送</string>
+         <string>退出</string>
         </property>
        </widget>
       </item>
@@ -274,7 +282,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="lbNumberOnlineUser">
         <property name="text">
          <string>在线用户：0 人</string>
         </property>
@@ -294,9 +302,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="btnSend">
         <property name="text">
-         <string>退出</string>
+         <string>发送</string>
         </property>
        </widget>
       </item>

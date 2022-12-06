@@ -12,8 +12,13 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
-    Widget(QWidget *parent = nullptr);
+    Widget(QWidget *parent, QString userName);
     ~Widget();
+
+    virtual void closeEvent(QCloseEvent*);  // 【重写】触发关闭事件
+
+signals:
+    void signalClose();  // 【自定义信号】如果关闭窗口则发送关闭信号
 
 private:
     Ui::Widget *ui;
