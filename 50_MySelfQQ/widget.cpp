@@ -63,6 +63,7 @@ void Widget::sendMsg(MsgType type)
 
     case UserJoin:
 
+
         break;
 
     case UserLeft:
@@ -96,15 +97,22 @@ void Widget::receiveMessage()
 
     dataStream >> msgType;
     dataStream >> name;
-    dataStream >> msg;
-    qDebug() << msgType << name << msg;
 
     switch (msgType) {
     case Msg:
+        dataStream >> msg;
+
         // 追加聊天记录
         ui->msgBrowser->setTextColor(Qt::blue);
         ui->msgBrowser->append("[" + name + "] " + time);
         ui->msgBrowser->append(msg);
+        break;
+
+    case UserJoin:
+        userJoin(name);
+        break;
+
+    case UserLeft:
         break;
 
     default:
@@ -114,6 +122,27 @@ void Widget::receiveMessage()
 
 }
 
+/* 处理用户加入 */
+void Widget::userJoin(QString name)
+{
+    if (ui->usrTbWidget->findItems(name, Qt::MatchExactly).isEmpty())
+    {
+        /* 更新用户列表 */
+        QTableWidgetItem* user = new QTableWidgetItem(name);
+        ui->usrTbWidget->insertRow(0);
+        ui->usrTbWidget->setItem(0, 0, user);
+
+        /* 追加聊天记录 */
+        ui->msgBrowser->setTextColor(Qt::gray);
+        ui->msgBrowser->append(QString("%1 上线了！").arg(name));
+
+        /* 在线用户更新 */
+        ui->lbNumberOnlineUser->setText(QString("在线用户：%1").arg(ui->usrTbWidget->rowCount()));
+
+        /* 把自身信息广播 */
+        sendMsg(UserJoin);
+    }
+}
 
 /* 获取聊天信息 */
 QString Widget::getMsg()
