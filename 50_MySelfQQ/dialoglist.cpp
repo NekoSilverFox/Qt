@@ -58,7 +58,7 @@ DialogList::DialogList(QWidget *parent) :
                         vIsOpen[i] = true;
 
 
-                        /* 关闭聊天对话框 重置是否打开的数组 */
+                        /* 关闭聊天对话框 重置是否打开的数组。（如果接收到窗口关闭信号，就 XXX） */
                         connect(widget, &Widget::signalClose,
                                 this, [=](){
                                             vIsOpen[i] = false;
