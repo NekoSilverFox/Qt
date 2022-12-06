@@ -26,6 +26,10 @@ Widget::Widget(QWidget *parent, QString userName)
     /* 接收（监听）消息 */
     connect(udpSocket, &QUdpSocket::readyRead,
             this, &Widget::receiveMessage);
+
+    /* 点击退出按钮，关闭窗口 */
+    connect(ui->btnExit, &QPushButton::clicked,
+            this, [=](){this->close();});
 }
 
 Widget::~Widget()
@@ -34,9 +38,13 @@ Widget::~Widget()
 }
 
 /* 触发关闭事件 */
-void Widget::closeEvent(QCloseEvent*)
+void Widget::closeEvent(QCloseEvent* event)
 {
     emit this->signalClose();
+    sendMsg(MsgType::UserLeft);
+    udpSocket->close();  // 关闭套接字
+    udpSocket->destroyed();
+    QWidget::closeEvent(event);
 }
 
 /* 广播 UDP 消息 */
@@ -113,6 +121,7 @@ void Widget::receiveMessage()
         break;
 
     case UserLeft:
+        userLeft(name, time);
         break;
 
     default:
@@ -143,6 +152,28 @@ void Widget::userJoin(QString name)
         sendMsg(UserJoin);
     }
 }
+
+
+/* 处理用户离开 */
+void Widget::userLeft(QString name, QString time)
+{
+    if (!ui->usrTbWidget->findItems(name, Qt::MatchExactly).isEmpty())
+    {
+        /* 更新用户列表 */
+        ui->usrTbWidget->removeRow(ui->usrTbWidget->findItems(name, Qt::MatchExactly).first()->row());
+
+        /* 追加聊天记录 */
+        ui->msgBrowser->setTextColor(Qt::gray);
+        ui->msgBrowser->append(QString("%1 在 %2 离开了").arg(name).arg(time));
+
+        /* 在线用户更新 */
+        ui->lbNumberOnlineUser->setText(QString("在线用户：%1").arg(ui->usrTbWidget->rowCount()));
+
+        /* 把自身信息广播 */
+        sendMsg(UserJoin);
+    }
+}
+
 
 /* 获取聊天信息 */
 QString Widget::getMsg()
