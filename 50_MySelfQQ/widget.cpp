@@ -2,6 +2,7 @@
 #include "ui_widget.h"
 #include <QDataStream>
 #include <QDateTime>
+#include <QColorDialog>
 
 Widget::Widget(QWidget *parent, QString userName)
     : QWidget(parent)
@@ -30,6 +31,49 @@ Widget::Widget(QWidget *parent, QString userName)
     /* 点击退出按钮，关闭窗口 */
     connect(ui->btnExit, &QPushButton::clicked,
             this, [=](){this->close();});
+
+    //////////////////////////////////////////////// 辅助功能 ////////////////////////////////////////////////
+    /* 字体 */
+    connect(ui->fontCbx, &QFontComboBox::currentFontChanged,
+            [=](const QFont& font){
+        ui->msgTextEdit->setCurrentFont(font);
+        ui->msgTextEdit->setFocus();
+    });
+
+    /* 字号 */
+    void(QComboBox::* cbxSingal)(const QString &text) = &QComboBox::currentTextChanged;
+    connect(ui->cbxFontSize, cbxSingal,
+            [=](const QString &text){
+        ui->msgTextEdit->setFontPointSize(text.toDouble());
+        ui->msgTextEdit->setFocus();
+    });
+
+    /* 加粗 */
+    connect(ui->btnBlod, &QToolButton::clicked,
+            [=](bool isCheck){
+        if (isCheck) ui->msgTextEdit->setFontWeight(QFont::Bold);
+        else ui->msgTextEdit->setFontWeight(QFont::Normal);
+    });
+
+    /* 倾斜 */
+    connect(ui->btnItalic, &QToolButton::clicked,
+            [=](bool isCheck){
+        ui->msgTextEdit->setFontItalic(isCheck);
+    });
+
+
+    /* 下划线 */
+    connect(ui->btnUnderLine, &QToolButton::clicked,
+            [=](bool isCheck){
+        ui->msgTextEdit->setFontUnderline(isCheck);
+    });
+
+    /* 更改颜色 */
+    connect(ui->btnColor, &QToolButton::clicked,
+            [=](){
+        QColor color = QColorDialog::getColor(Qt::black);
+        ui->msgTextEdit->setTextColor(color);
+    });
 }
 
 Widget::~Widget()

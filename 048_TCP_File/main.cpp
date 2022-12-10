@@ -1,5 +1,5 @@
-#include "widget.h"
-#include "dialoglist.h"
+#include "tcpclient.h"
+#include "tcpserver.h"
 
 #include <QApplication>
 
@@ -7,12 +7,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    TCPServer server;
+    server.show();
 
-
-    DialogList list;
-    list.show();
-
-//    Widget w;
+//    TCPClient w;
 //    w.show();
     return a.exec();
 }
