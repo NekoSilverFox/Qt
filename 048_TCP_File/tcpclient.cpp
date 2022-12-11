@@ -13,7 +13,6 @@ TCPClient::TCPClient(QWidget *parent)
     this->setWindowTitle("Client");
 
     this->tcpSocket = new QTcpSocket(this);
-    this->isHeaderReceived = false;
 
     /* 点击连接按钮，与服务器建立连接 */
     connect(ui->btnConnect, &QPushButton::clicked, [=](){
@@ -26,11 +25,19 @@ TCPClient::TCPClient(QWidget *parent)
 //        }
 //        ui->textBrowser->setTextColor(Qt::blue);
 //        ui->textBrowser->append(QString("[INFO] The file will save to path: %1").arg(savePath));
-       this->tcpSocket->disconnect();
+       this->isHeaderReceived = false;
        QString serverIp = ui->leServerIp->text();
        qint16 serverPort = ui->leServerPort->text().toInt();
        this->tcpSocket->connectToHost(QHostAddress(serverIp), serverPort);  // 服务器建立连接
     });
+
+    /* 点击断开连接按钮 */
+    connect(ui->btnDisconnect, &QPushButton::clicked, [=](){
+        tcpSocket->disconnectFromHost(); //断开连接
+        tcpSocket->close(); //关闭套接字
+    });
+
+
 
     /* 如果与主机建立连接 */
     connect(this->tcpSocket, &QTcpSocket::connected,
