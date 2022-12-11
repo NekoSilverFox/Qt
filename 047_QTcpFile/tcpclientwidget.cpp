@@ -35,15 +35,9 @@ TcpClientWidget::TcpClientWidget(QWidget *parent) :
                         receSize=0;
                         //字符串切割“fileName_fileSize”
                         QString temp=QString(array);
-//                        fileName=temp.section("_",0,0);
-//                        //cout<<fileName;
-//                        fileSize=temp.section("_",1,1).toInt();
-
                         //文件名
                         fileName = QString(array).section("**", 0, 0);
-                                    //文件大小
                         fileSize = QString(array).section("**", 1, 1).toInt();
-                        //cout<<"fileSize="<<fileSize;
 
                         //指定文件的名字
                         file.setFileName(fileName);

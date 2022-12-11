@@ -34,8 +34,9 @@ TCPServer::TCPServer(QWidget *parent) :
         {
             ui->textEdit->setTextColor(Qt::blue);
             ui->textEdit->append(QString("[INFO] File opened successfully\n"
-                                          "Path: %1\n"
-                                          "Size: %2Kb").arg(path).arg(fileSize / 1024));
+                                         "Name: %1\n"
+                                         "Path: %2\n"
+                                         "Size: %3Kb").arg(this->fileName).arg(path).arg(fileSize / 1024));
         }
         else
         {
@@ -83,7 +84,7 @@ TCPServer::TCPServer(QWidget *parent) :
         /* 如果header发送成功了，再发送数据。 并且为了防止TCP黏包，需要通过定时器延时 20 ms*/
         if (len > 0)
         {
-            timer->start(20);
+            timer->start(1000);
             return;
         }
         else
@@ -94,6 +95,11 @@ TCPServer::TCPServer(QWidget *parent) :
             return;
         }
     });
+
+//    connect(tcpSocket, &QTcpSocket::disconnected, [=](){
+//        ui->textEdit->setTextColor(Qt::darkYellow);
+//        ui->textEdit->append("[WARRING] Disconnect with client");
+//    });
 
 
 }
@@ -112,14 +118,12 @@ void TCPServer::sendFile()
     this->bytesAlreadySend = 0;
 
     do {
-        lenPackage = 0;
         char buf[4 * 1024] = {0};  // 【数据包】每次发送的数据
-        lenPackage = file.read(buf, lenPackage);
+        lenPackage = file.read(buf, sizeof(buf));
         lenPackage = tcpSocket->write(buf, lenPackage);  // 发送数据，读多少，发多少
 
         this->bytesAlreadySend += lenPackage;  // 发送的数据需要累积
-        qDebug() << "this->bytesAlreadySend: " << this->bytesAlreadySend;
-
+        ui->textEdit->append(QString("[INFO] this->bytesAlreadySend:%1").arg(this->bytesAlreadySend));
     } while (lenPackage > 0);
 
     if (this->bytesAlreadySend == this->fileSize)

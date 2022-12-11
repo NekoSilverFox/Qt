@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     TCPServer server;
     server.show();
 
-//    TCPClient w;
-//    w.show();
+    TCPClient w;
+    w.show();
     return a.exec();
 }
