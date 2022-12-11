@@ -26,7 +26,7 @@ TCPClient::TCPClient(QWidget *parent)
 //        }
 //        ui->textBrowser->setTextColor(Qt::blue);
 //        ui->textBrowser->append(QString("[INFO] The file will save to path: %1").arg(savePath));
-
+       this->tcpSocket->disconnect();
        QString serverIp = ui->leServerIp->text();
        qint16 serverPort = ui->leServerPort->text().toInt();
        this->tcpSocket->connectToHost(QHostAddress(serverIp), serverPort);  // 服务器建立连接

@@ -53,6 +53,10 @@ TCPServer::TCPServer(QWidget *parent) :
     connect(tcpServer, &QTcpServer::newConnection,
             this, [=](){
         this->tcpSocket = tcpServer->nextPendingConnection();  // 将下一个挂起的连接作为已连接的QTcpSocket对象返回
+        connect(tcpSocket, &QTcpSocket::disconnected, [=](){
+            ui->textEdit->setTextColor(Qt::darkYellow);
+            ui->textEdit->append("[WARRING] Disconnect with client");
+        });
 
         /* 记录 Client 信息 */
         QString clientIp = tcpSocket->peerAddress().toString();
@@ -96,10 +100,6 @@ TCPServer::TCPServer(QWidget *parent) :
         }
     });
 
-//    connect(tcpSocket, &QTcpSocket::disconnected, [=](){
-//        ui->textEdit->setTextColor(Qt::darkYellow);
-//        ui->textEdit->append("[WARRING] Disconnect with client");
-//    });
 
 
 }
