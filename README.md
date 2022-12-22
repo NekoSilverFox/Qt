@@ -20,27 +20,29 @@
 
 # 项目编号及备注
 
-| 项目名      | 说明                                                         |
-| ----------- | ------------------------------------------------------------ |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-| 010_Layout  | 【窗口布局】借助登录窗口的布局，说明 Qt 中布局的相关内容：弹簧，栅格布局，如何删除间隙等。 |
-| 011_Control | Qt 中控件的介绍                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
-|             |                                                              |
+| 项目名                                                       | 说明                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+|                                                              |                                                              |
+|                                                              |                                                              |
+|                                                              |                                                              |
+|                                                              |                                                              |
+|                                                              |                                                              |
+|                                                              |                                                              |
+|                                                              |                                                              |
+| 010_Layout                                                   | 【窗口布局】借助登录窗口的布局，说明 Qt 中布局的相关内容：弹簧，栅格布局，如何删除间隙等。 |
+| 011_Control                                                  | Qt 中控件的介绍                                              |
+| [013_Control_Item_Widgets](https://github.com/NekoSilverFox/Qt/tree/main/013_Control_Item_Widgets) | Qt 中控件的介绍                                              |
+| [014_Control_Other](https://github.com/NekoSilverFox/Qt/tree/main/014_Control_Other) | [控件 Combo Box, Qlabel 显示图片等](https://github.com/NekoSilverFox/Qt/commit/027c02a4696cd13e4e66b157701b349088461d25) |
+| [020_MyWidget](https://github.com/NekoSilverFox/Qt/tree/main/020_MyWidget) | 自定义控件，实现水平条与数字显示联动                         |
+| [025_Qt_Event](https://github.com/NekoSilverFox/Qt/tree/main/025_Qt_Event) | Qt 中的事件过滤器                                            |
+| [030_QPainter](https://github.com/NekoSilverFox/Qt/tree/main/030_QPainter) | Qt 中的绘图设备                                              |
+| [031_QPainterDevice](https://github.com/NekoSilverFox/Qt/tree/main/031_QPainterDevice) | 通过读取文件中存储的命令进行绘图                             |
+| [040_QFile](https://github.com/NekoSilverFox/Qt/tree/main/040_QFile) | Qt 中的文件操作                                              |
+| [045_UDP_Demo](https://github.com/NekoSilverFox/Qt/tree/main/045_UDP_Demo) | UDP 通讯小案例（UDP 套接字的使用）                           |
+| [047_QTcpFile](https://github.com/NekoSilverFox/Qt/tree/main/047_QTcpFile) | 传输文件案例（TCP 套接字的使用）                             |
+| [050_MySelfQQ](https://github.com/NekoSilverFox/Qt/tree/main/050_MySelfQQ) | 实现类似 QQ 的聊天软件                                       |
+|                                                              |                                                              |
+|                                                              |                                                              |
 
 
 
@@ -1668,6 +1670,154 @@ void Widget::paintEvent(QPaintEvent *)
 
 
 # 文件读写
+
+
+
+# QTest
+
+> QTest 单元测试框架
+>
+> https://www.cnblogs.com/lsgxeva/p/12564481.html
+
+**QTestLib简介:**
+
+QTestLib是Qt提供的一种针对基于Qt编写的程序或库的单元测试框架。QTestLib提供了单元测试框架的基本功能，并**提供了针对GUI测试的扩展功能**。
+
+
+
+**QTestLib特性：**
+
+所有公有的方法都在QTest命名空间中。另外，QSignalSpy类为Qt的信号和槽提供了简单的内省机制。
+
+QTestLib是为了简化QT程序或库的单元测试工作而设计的。
+
+QTestLib特性如下：
+
+A、轻量级：QTestlib只包含6000行代码和60个导出符号
+B、自包含：对于非GUI测试，QTestlib只需要Qt核心库的几个符号。
+C、快速测试：QTestlib不需要特殊的测试执行程序，不需要为测试而进行特殊的注册。
+D、数据驱动测试：一个测试程序可以在不同的测试数据集上执行多次。
+E、基本的GUI测试：QTestlib提供了模拟鼠标和键盘事件的功能。
+F、基准测试：QTestLIB支持基准测试并提供多种测量后端。
+G、IDE友好：QTestlib的输出信息可以被Visual Studio和KDevelop解析。
+H、线程安全：错误报告是线程安全的、原子性的。
+J、类型安全：对模板进行了扩展使用，防止由隐式类型转换引起的错误。
+K、易扩展：用户自定义类型可以容易地加入到测试数据和测试输出中。
+
+
+
+**AutoTest插件：**
+
+默认测试结果以纯文本形式显示在控制台（应用程序输出标签），不够直观，可使用AutoTest插件实现可视化效果。
+
+通过Help->About Plugins->Utilities，选中 AutoTest，重启Qt Creator，然后在下方会多出TestResults的标签，可直接在此标签点击上方的运行按钮运行所有测试，同时在“Tools-Tests-Run All Tests”也可运行所有测试。
+
+此插件可以在运行单元测试后以红、绿色表示明确标记处运行结果，并且以Case为单位显示，可以展开看到具体每一个测试用例的结果。
+
+![img](https://img2020.cnblogs.com/blog/825468/202003/825468-20200325145702252-1580359049.png)
+
+
+
+## QTestLib单元测试原理
+
+**QTestLib单元测试原理简介：**
+
+原理：输入测试数据表和结果数据表，与实际值比较。
+
+
+
+**测试类：**
+
+测试类需要从`QObject`类继承，类中需要加入一个或者多个私有槽。**每一个私有槽都是一个测试函数**，但有 4 种私有槽不能作为测试函数，它们由测试框架执行，可为整个测试程序或当前测试函数进行初始化和清除操作。
+
+- `initTestCase()`：在第一个测试函数执行前调用
+
+    如果initTestCase()函数执行失败，任何测试函数都不会执行。
+
+- `init()`：在每一个测试函数执行前调用
+
+    如果init()函数执行失败，紧随其后的测试函数不会被执行，测试会继续处理下一个测试函数。
+
+- `cleanup()`：在每一个测试函数执行后调用
+
+- `cleanupTestCase()`：在最后一个测试函数执行后调用
+
+- `QTest::qExec(QObject* testClassObject)` 函数用于执行测试对象中所有的测试函数。
+
+
+
+**测试函数：**
+
+对于一个要测试的目标函数，需要使用两个函数进行测试:`testFunctionName()`和`testFunctionName_data()`。
+
+`testFunctionName_data`:数据提供，在函数体中写入测试数据。
+
+`testFunctionName`：测试的实体，读取`testFunctionName_data`函数中的数据表，并逐行进行测试。如果测试结果与数据表中的结果不同，则认为测试失败。
+
+
+
+**测试数据构建：**
+
+数据由 `QTest::addColumn<T>(name)` 和 `QTest::newRow(name) << input << result` 来构建一个数据表，其中的列可以被获取，然后将表中对应的数据按行测试，并与表中的结果列进行对比。
+
+
+
+**GUI测试：**
+
+对于GUI交互操作的测试，则将数据设置为事件列表，供模拟测试。QTestlib提供了模拟鼠标和键盘事件的功能。
+
+
+
+**通讯：**
+
+QTest 提供一系列宏来进行数据的通信
+
+```c++
+QBENCHMARK
+QBENCHMARK_ONCE
+QCOMPARE(actual, expected)
+QEXPECT_FAIL(dataIndex, comment, mode)
+QFAIL(message)
+QFETCH(type, name)
+QFINDTESTDATA(filename)
+QSKIP(description)
+QTEST(actual, testElement)
+QTEST_APPLESS_MAIN(TestClass)
+QTEST_GUILESS_MAIN(TestClass)
+QTEST_MAIN(TestClass)
+QTRY_COMPARE(actual, expected)
+QTRY_COMPARE_WITH_TIMEOUT(actual, expected, timeout)
+QTRY_VERIFY2(condition, message)
+QTRY_VERIFY(condition)
+QTRY_VERIFY2_WITH_TIMEOUT(condition, message, timeout)
+QTRY_VERIFY_WITH_TIMEOUT(condition, timeout)
+QVERIFY2(condition, message)
+QVERIFY(condition)
+QVERIFY_EXCEPTION_THROWN(expression, exceptiontype)
+QWARN(message)
+```
+
+
+
+**程序启动入口：**
+
+QTest 提供了 `QTEST_MAIN()` 作为测试的启动宏，构建一个 main 函数，在 main 函数内调用 `QTest::qExec(QObject testClassObject)`，也可以直接调用 `QTest::qExec(QObject testClassObject)` 来启动测试。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
