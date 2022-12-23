@@ -1678,6 +1678,8 @@ void Widget::paintEvent(QPaintEvent *)
 > QTest 单元测试框架
 >
 > https://www.cnblogs.com/lsgxeva/p/12564481.html
+>
+> https://blog.csdn.net/u011942101/article/details/124074075
 
 **QTestLib简介:**
 
@@ -1746,6 +1748,14 @@ K、易扩展：用户自定义类型可以容易地加入到测试数据和测�
 
 
 
+如果您将qmake其用作构建工具，只需将以下内容添加到您的项目文件中：
+
+```qmake
+QT += testlib
+```
+
+
+
 **测试函数：**
 
 对于一个要测试的目标函数，需要使用两个函数进行测试:`testFunctionName()`和`testFunctionName_data()`。
@@ -1768,9 +1778,101 @@ K、易扩展：用户自定义类型可以容易地加入到测试数据和测�
 
 
 
+## 使用
+
+1. 如果 qmake 其用作构建工具，将以下内容添加到 `.pro` 中：
+
+    ```qmake
+    QT += testlib
+    ```
+
+    
+
+2. **添加测试类**，比如：`TestString`
+
+3. **配置测试类，并添加测试**
+
+    - **让测试类继承于 `QObject`**
+    - **包含QTest头文件 `#include <QtTest/QtTest>`**
+    - **在私有槽 `private slots` 里编写测试类**，便于测试框架找到并执行它们。
+
+    **比如：**
+
+    ```c++
+    #ifndef TESTQSTRING_H
+    #define TESTQSTRING_H
+    
+    #include <QtTest/QtTest>
+    #include <QObject>
+    
+    class TestQString : public QObject
+    {
+        Q_OBJECT
+    
+    private slots:
+        void initTestCase()
+        {
+            qDebug() << "开始执行单元测试";
+        }
+    
+      void TestQString::to_upper()
+      {
+          QString str = "Hello";
+          QVERIFY(str.toUpper() == "HELLO");
+      }
+    
+      void TestQString::cleanupTestCase()
+      {
+          qDebug() << "单元测试全部测试结束";
+      }
+      
+    #endif // TESTQSTRING_H
+    ```
+
+4. **在 main 里调用 `QTest::qExec(对象)` 进行测试**
+
+    QTest 提供了 `QTEST_MAIN()` 作为测试的启动宏，构建一个 main 函数，在 main 函数内调用 `QTest::qExec(QObject testClassObject)`，也可以直接调用 `QTest::qExec(QObject testClassObject)` 来启动测试。
+
+    ```c++
+    int main(int argc, char *argv[])
+    {
+        TestQString testQString;
+    
+        /* 调用 QTest::qExec(对象) 进行测试 */
+        QTest::qExec(&testQString);
+        QTest::qExec(new TestQString);
+    
+        QApplication a(argc, argv);
+        Widget w;
+        w.show();
+        return a.exec();
+    }
+    ```
+
+    
+
 **通讯：**
 
 QTest 提供一系列宏来进行数据的通信
+
+| 宏                 | 说明                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| QVERIFY(condition) | 判断表达式是否为 true，通常用于判断值相等<br />比如：`QVERIFY(QString("fox").toUpper() == "FOX")` |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+|                    |                                                              |
+
+
 
 ```c++
 QBENCHMARK
@@ -1792,30 +1894,10 @@ QTRY_VERIFY(condition)
 QTRY_VERIFY2_WITH_TIMEOUT(condition, message, timeout)
 QTRY_VERIFY_WITH_TIMEOUT(condition, timeout)
 QVERIFY2(condition, message)
-QVERIFY(condition)
+
 QVERIFY_EXCEPTION_THROWN(expression, exceptiontype)
 QWARN(message)
 ```
-
-
-
-**程序启动入口：**
-
-QTest 提供了 `QTEST_MAIN()` 作为测试的启动宏，构建一个 main 函数，在 main 函数内调用 `QTest::qExec(QObject testClassObject)`，也可以直接调用 `QTest::qExec(QObject testClassObject)` 来启动测试。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
