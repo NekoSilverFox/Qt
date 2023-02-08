@@ -1855,29 +1855,30 @@ QT += testlib
 
 QTest 提供一系列宏来进行数据的通信
 
-| 宏                 | 说明                                                         |
-| ------------------ | ------------------------------------------------------------ |
-| QVERIFY(condition) | 判断表达式是否为 true，通常用于判断值相等<br />比如：`QVERIFY(QString("fox").toUpper() == "FOX")` |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
-|                    |                                                              |
+| 宏                         | 说明                                                         |
+| -------------------------- | ------------------------------------------------------------ |
+| QVERIFY(condition)         | 判断表达式是否为 true，通常用于判断值相等<br />比如：`QVERIFY(QString("fox").toUpper() == "FOX")` |
+| QCOMPARE(actual, expected) | 比较实际值与期望值是否相等                                   |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
+|                            |                                                              |
 
 
 
 ```c++
 QBENCHMARK
 QBENCHMARK_ONCE
-QCOMPARE(actual, expected)
+
 QEXPECT_FAIL(dataIndex, comment, mode)
 QFAIL(message)
 QFETCH(type, name)
@@ -1901,9 +1902,57 @@ QWARN(message)
 
 
 
+## 编写测试数据函数
+
+为测试函数提供数据的函数必须与测试函数同名，并加上_data后缀。为测试函数提供数据的函数类似这样:
+
+```css
+void TestQString::toUpper_data()
+ {
+     QTest::addColumn<QString>("string");
+     QTest::addColumn<QString>("result");
+
+     QTest::newRow("all lower") << "hello" << "HELLO";
+     QTest::newRow("mixed")     << "Hello" << "HELLO";
+     QTest::newRow("all upper") << "HELLO" << "HELLO";
+ }
+```
+
+首先，使用QTest::addColumn()函数定义测试数据表的两列元素：测试字符串和在该测试字符串上调用QString::toUpper()函数期望得到的结果。
+然后使用 QTest::newRow()函数向测试数据表中增加一些数据。每组数据都会成为测试数据表中的一个单独的行。
+QTest::newRow()函数接收一个参数：将要关联到该行测试数据的名字。如果测试函数执行失败，名字会被测试日志使用，以引用导致测试失败的数据。然后将测试数据加入到新行：首先是一个任意的字符串，然后是在该行字符串上调用 QString::toUpper()函数期望得到的结果字符串。
+可以将测试数据看作是一张二维表格。在这个例子里，它包含两列三行，列名为string 和result。另外，每行都会对应一个序号和名称:
+index name string result
+0 all lower "hello" HELLO
+1 mixed "Hello" HELLO
+2 all upper "HELLO" HELLO
 
 
 
+**测试函数需要被重写：**
+
+```cpp
+void TestQString::toUpper()
+ {
+     QFETCH(QString, string);
+     QFETCH(QString, result);
+
+     QCOMPARE(string.toUpper(), result);
+ }
+```
+
+TestQString::toUpper()函数会执行两次，对toUpper_data()函数向测试数据表中加入的每一行都会调用一次。
+首先，调用QFETCH()宏从测试数据表中取出两个元素。QFETCH()接收两个参数: 元素的数据类型和元素的名称。然后用QCOMPARE()宏执行测试操作。
+使用这种方法可以不修改测试函数就向该函数加入新的数据。
+像以前一样，为使测试程序能够单独执行，需要加入下列代码:
+QTEST_MAIN(TestGui)
+QTEST_MAIN()宏将扩展成一个简单的main()函数，该main()函数会执行所有的测试函数。
 
 
+
+## 信号触发
+
+Qt Test提供了QSignalSpy类，可用于对QObject对象发射的信号进行计数和检查
+
+https://doc.qt.io/qt-6/qsignalspy.html
 

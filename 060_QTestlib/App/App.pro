@@ -1,4 +1,4 @@
-QT       += core gui testlib
+QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,11 +10,9 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    testqstring.cpp \
     widget.cpp
 
 HEADERS += \
-    testqstring.h \
     widget.h
 
 FORMS += \
