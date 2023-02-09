@@ -1677,9 +1677,13 @@ void Widget::paintEvent(QPaintEvent *)
 
 > QTest 单元测试框架
 >
+> https://blog.51cto.com/quantfabric/2114179
+>
 > https://www.cnblogs.com/lsgxeva/p/12564481.html
 >
 > https://blog.csdn.net/u011942101/article/details/124074075
+>
+> https://github.com/apachecn/apachecn-cv-zh/blob/0f2e14ca582d398ba3be22a1fff949077f4c85c0/docs/cv-opencv3-qt5/10.md
 
 **QTestLib简介:**
 
@@ -1717,6 +1721,20 @@ K、易扩展：用户自定义类型可以容易地加入到测试数据和测�
 此插件可以在运行单元测试后以红、绿色表示明确标记处运行结果，并且以Case为单位显示，可以展开看到具体每一个测试用例的结果。
 
 ![img](https://img2020.cnblogs.com/blog/825468/202003/825468-20200325145702252-1580359049.png)
+
+## [Qtest获取ui成员](https://stackoverflow.com/questions/24206372/qtest-access-to-ui-member)
+
+> https://stackoverflow.com/questions/24206372/qtest-access-to-ui-member
+
+尝试以下方法：
+
+```cpp
+BUTTONCLASS* button = WIDGET->findChild<BUTTONCLASS*>("name of the button");
+
+QPushButton * b = mediaPanel.findChild<QPushButton*>("name"); 
+```
+
+据我所知，这应该在不暴露 UI 指针的情况下为您提供小部件。
 
 
 
@@ -1956,3 +1974,10 @@ Qt Test提供了QSignalSpy类，可用于对QObject对象发射的信号进行�
 
 https://doc.qt.io/qt-6/qsignalspy.html
 
+
+
+> 通过创建子项目文件夹来包含主项目和测试：
+>
+> https://stackoverflow.com/questions/41075387/add-a-unit-test-project-to-an-existing-qt-creator-project
+>
+> 工程结构示例：https://github.com/bruceoutdoors/DrawingApp
