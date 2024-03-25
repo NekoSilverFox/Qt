@@ -385,9 +385,36 @@ Qt 窗口共有 3 种不同类型的条（实际上，一般来说是 Windows）
 
 **每当在 Qt 中创建一个新的主窗口时，这三种类型的条形都将添加到该窗口中。 **请注意，一个窗口上只能有一个菜单栏和一个状态栏，但是可以有任意数量的状态栏。 如果不需要它们，则需要将它们从“设计器”窗口右侧的对象层次结构中删除。现在您已经熟悉了 Qt 中的三个不同的条形，可以从“Qt 欢迎”模式中的示例中搜索`Application Example`，以进一步了解它们，以及是否可以进一步自定义它们。
 
+**注意，我们在 ui 设计界面添加的窗体或者空间（也就是不是用过代码创建的），要通过 `ui->` 进行访问**
+
+比如在 mainwindow.cpp 中访问我们为我们创建的按钮添加图标：
+
+```c++
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    ui->actionNewFile->setIcon(QIcon(":_文件路径__"));  // 通过 `ui->` 访问
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 
 
-## 菜单栏
+```
+
+## 添加 Action（菜单/选项）
+
+<img src="doc/pic/README/image-20221018171003019.png" alt="image-20221018171003019" style="zoom:50%;" />
+
+## 菜单栏 Menu Bar
 
 一个主窗口**最多只有==一个==菜单栏**。位于主窗口顶部、主窗口标题栏下面。
 
@@ -420,11 +447,9 @@ Qt 窗口共有 3 种不同类型的条（实际上，一般来说是 Windows）
               
             QAction* addAction(const QString & text, const QObject * receiver, const char * member, const QKeySequence & shortcut = 0)
               
-            QAction* addAction(const QIcon & icon, const QString & text, const QObject * receiver, const char * ember, 
-            const QKeySequence & shortcut = 0)
-            
+            QAction* addAction(const QIcon & icon, const QString & text, const QObject * receiver, const char * ember, const QKeySequence & shortcut = 0)
             ```
-    
+            
             **Qt 并没有专门的菜单项类，只是使用一个QAction类，抽象出公共的动作。当我们把QAction对象添加到菜单，就显示成一个菜单项，添加到工具栏，就显示成一个工具按钮。用户可以通过点击菜单项、点击工具栏按钮、点击快捷键来激活这个动作。**
     
 
@@ -447,7 +472,7 @@ MainWindow::MainWindow(QWidget *parent)
     QMenu* menuEdit = menuBar->addMenu("编辑");
 
     /* 菜单项 */
-    QAction* actionNewFile = menuFile->addAction("新建文件");  // 添加菜单项
+    QAction* actionNewFile = menuFile->addAction("新建文件");  // 添加菜单项项
     menuFile->addSeparator();  // 添加分隔线
     QAction* actionOpenFile = menuFile->addAction("打开文件");
 }
@@ -461,7 +486,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-## 工具栏
+## 工具栏 Tool Bar
+
+### 通过设计器创建
+
+<img src="doc/pic/README/image-20221018170737986.png" alt="image-20221018170737986" style="zoom:50%;" />
+
+之后可以将创建好的 Action 直接拖拽到 ToolBar 中
+
+<img src="doc/pic/README/image-20221018170902491.png" alt="image-20221018170902491" style="zoom:50%;" />
+
+### 通过代码创建
 
 主窗口的工具栏上可以有**==多个==**工具条，通常采用一个菜单对应一个工具条的的方式，也可根据需要进行工具条的划分。
 
@@ -570,55 +605,6 @@ this->setCentralWidget(textEdit);  // 【重点】将 TextEdit 设置为核心�
 
 **核心部件与铆接部件代码及结果：**
 ![image-20221018162054408](doc/pic/README/image-20221018162054408.png)
-
-
-
-
-
-# UI 设计
-
-**注意，我们在 ui 设计界面添加的窗体或者空间（也就是不是用过代码创建的），要通过 `ui->` 进行访问**
-
-比如在 mainwindow.cpp 中访问我们为我们创建的按钮添加图标：
-
-```c++
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-
-    ui->actionNewFile->setIcon(QIcon(":_文件路径__"));  // 通过 `ui->` 访问
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
-
-```
-
-## 添加 Action
-
-<img src="doc/pic/README/image-20221018171003019.png" alt="image-20221018171003019" style="zoom:50%;" />
-
-
-
-## 添加 ToolBar
-
-<img src="doc/pic/README/image-20221018170737986.png" alt="image-20221018170737986" style="zoom:50%;" />
-
-之后可以将创建好的 Action 直接拖拽到 ToolBar 中
-
-<img src="doc/pic/README/image-20221018170902491.png" alt="image-20221018170902491" style="zoom:50%;" />
-
-
-
-
 
 # 资源文件
 
@@ -931,11 +917,13 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
-# 控件及工具
+# UI 控件及工具
 
 ![image-20240325003522709](doc/img/image-20240325003522709.png)
 
-## Buttons
+## 按钮 Buttons
+
+![image-20240325183354563](doc/img/image-20240325183354563.png)
 
 **Buttons - 按钮**：这些只是按钮。 它们用于提示操作。 您可能会注意到，单选按钮和复选框也在该组中，这是因为它们都继承自`QAbstractButton`类，该类是一个抽象类，提供了类按钮小部件所需的所有接口。
 
@@ -950,7 +938,19 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
+## 项目视图（基于模型）Item Views (Model-based)
+
+**项目视图（基于模型）Item Views (Model-based)**：这基于**模型视图控制器（MVC, Model-view-controller）设计模式**； 它们可用于表示不同类型容器中的模型数据。
+
+如果您完全不熟悉 MVC 设计模式，那么我建议您在这里停顿一下，首先通读一本综合性的文章，**Qt 文档中名为“[模型/视图编程（Model/View Programming）](https://doc.qt.io/qt-6/model-view-programming.html)”的文章**。 它是非常重要的架构，您肯定会在以后的项目中遇到它，因此我建议您花一些时间来学习它。
+
+
+
+
+
 ## Item Widgets
+
+![image-20240325183411935](doc/img/image-20240325183411935.png)
 
 ### List Widget
 
