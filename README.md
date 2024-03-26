@@ -48,6 +48,8 @@
 
 # 简介
 
+新建一个工程后，初始包含以下文件：
+
 - widget.hpp
 
 ```c++
@@ -70,8 +72,6 @@ public:
 
 
 
-
-
 - main.cpp
 
 ```c++
@@ -87,7 +87,7 @@ public:
  */
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);  // 应用程序对象 a，在 Qt 中有且仅有一个
+    QApplication a(argc, argv);  // 【重点】应用程序对象 a，在 Qt 中有且仅有一个
     Widget w;  // 窗口对象
     w.show();  // 弹出窗口（窗口默认不会弹出）
 
@@ -135,7 +135,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 
-**快捷键：**
+**默认快捷键：**
 
 - Ctrl + R 运行
 - Ctrl + B 编译
@@ -150,51 +150,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 **Qt 中所有的窗口叫 Widget**
 
-
-
-# 控件
-
-## Weight 窗口
-
-| 函数名                      | 描述                                           |
-| --------------------------- | ---------------------------------------------- |
-| setWindowTitle(QStrging)    | 设置窗口标题                                   |
-| setFixedSize(hight, weight) | 设置固定的窗口大小（设置之后窗口不能人为缩放） |
-| show()                      | 显示此窗口                                     |
-|                             |                                                |
-
-
-
-**信号和槽**
-
-| 槽    | 描述     |
-| ----- | -------- |
-| close | 关闭窗口 |
-|       |          |
-|       |          |
-
-
-
-## QPushButton
-
-| 函数名                | 描述           |
-| --------------------- | -------------- |
-| setParent(obj)        | 设置按钮的父类 |
-| move(x, y)            | 移动按钮       |
-| resize(hight, weight) | 设置按钮大小   |
-| setText(QString)      | 设置按钮文本   |
-
-
-
-| 信号    | 描述 |
-| ------- | ---- |
-| clicked | 点击 |
-|         |      |
-|         |      |
-
-
-
 # 信号和槽
+
+> **信号和槽是 Qt 中最重要的机制**
 
 ## connect
 
@@ -263,8 +221,6 @@ void (TheClass::*class_signal)(QString) = &TheClass::funcSignal;
 
 
 
-
-
 ## 总结
 
 - 一个信号可以连接多个槽
@@ -272,8 +228,6 @@ void (TheClass::*class_signal)(QString) = &TheClass::funcSignal;
 - 信号可以连接信号
 - **信号和槽的参数类型必须一一对应**，但**信号参数的个数可以多于槽的个数**（反之不可）
 - 信号与槽直连的连接可以断开（`disconnect(发送方, 信号, 接收方, 槽)`）
-
-
 
 
 
@@ -355,9 +309,53 @@ C++11中的Lambda表达式**用于定义并创建匿名的函数对象**，以�
 
 
 
+# 常用控件的信号和槽
+
+## Weight 窗口
+
+| 函数名                      | 描述                                           |
+| --------------------------- | ---------------------------------------------- |
+| setWindowTitle(QStrging)    | 设置窗口标题                                   |
+| setFixedSize(hight, weight) | 设置固定的窗口大小（设置之后窗口不能人为缩放） |
+| show()                      | 显示此窗口                                     |
+|                             |                                                |
+
+
+
+**信号和槽**
+
+| 槽    | 描述     |
+| ----- | -------- |
+| close | 关闭窗口 |
+|       |          |
+|       |          |
+
+
+
+## QPushButton
+
+| 函数名                | 描述           |
+| --------------------- | -------------- |
+| setParent(obj)        | 设置按钮的父类 |
+| move(x, y)            | 移动按钮       |
+| resize(hight, weight) | 设置按钮大小   |
+| setText(QString)      | 设置按钮文本   |
+
+
+
+| 信号    | 描述 |
+| ------- | ---- |
+| clicked | 点击 |
+|         |      |
+|         |      |
+
+
+
+
+
 # QMainWindow
 
-QMainWindow是一个为用户提供**主窗口程序**的类，包含：
+QMainWindow是一个为用户提供**主窗口程序**的类（**继承于 QWidget，可以理解为包含了以下控件的 Widget**），包含：
 
 - **一个**菜单栏（menu bar）、
 - 多个工具栏(tool bars)、工具栏就是有时候可以拖拽出来的那个东西
@@ -369,19 +367,21 @@ QMainWindow是一个为用户提供**主窗口程序**的类，包含：
 
 ![image-20221018121725084](doc/pic/README/image-20221018121725084.png)
 
-Qt 窗口共有 3 种不同类型的条（实际上，一般来说是 Windows），它们在小部件工具箱中不可用，但是可以通过右键单击 Windows 中的窗口来创建，添加或删除它们。 设计器模式，然后从右键菜单中选择相关项目。 它们是：
+Qt 窗口共有 3 种不同类型的条，它们在小部件工具箱中不可用，但是可以通过右键单击 Windows 中的窗口来创建，添加或删除它们。 设计器模式，然后从右键菜单中选择相关项目。 它们是：
 
 <img src="doc/img/image-20240325000503738.png" alt="image-20240325000503738" style="zoom: 67%;" />
 
-1. 菜单栏（`QMenuBar`）**菜单栏**是显示在窗口顶部的典型水平主菜单栏。 菜单中可以有任意数量的项目和子项目，每个项目和子项目都可以触发一个动作（`QAction`）。 您将在接下来的章节中了解有关操作的更多信息。 以下是菜单栏示例：
+1. **菜单栏**（`QMenuBar`）**菜单栏**是显示在窗口顶部的典型水平主菜单栏。 菜单中可以有任意数量的项目和子项目，每个项目和子项目都可以触发一个动作（`QAction`）。 您将在接下来的章节中了解有关操作的更多信息。 以下是菜单栏示例：
 
 ![](doc/img/3f2ff1ec-225f-482f-8382-324c193748a7-1311573.png)
 
-2. 工具栏（`QToolBar`）**工具栏**是一个**可移动面板**，其中可以包含与特定任务相对应的工具按钮。 这是一个示例工具栏。 请注意，它们可以在 Qt 窗口内移动甚至移出：
+2. **工具栏**（`QToolBar`）**工具栏**是一个**可移动面板**，其中可以包含与特定任务相对应的工具按钮。 这是一个示例工具栏。 请注意，它们可以在 Qt 窗口内移动甚至移出：
 
 ![](doc/img/8ed42c6f-df0f-459f-a29d-692cd7a0cd04-1311573.png)
 
-3. 状态栏（`QStatusBar`) 状态栏**是底部的一个简单的水平信息栏，对于大多数基于窗口的应用是通用的。 **
+3. **状态栏**（`QStatusBar`) 状态栏**是底部的一个简单的水平信息栏，对于大多数基于窗口的应用是通用的。 **
+
+
 
 **每当在 Qt 中创建一个新的主窗口时，这三种类型的条形都将添加到该窗口中。 **请注意，一个窗口上只能有一个菜单栏和一个状态栏，但是可以有任意数量的状态栏。 如果不需要它们，则需要将它们从“设计器”窗口右侧的对象层次结构中删除。现在您已经熟悉了 Qt 中的三个不同的条形，可以从“Qt 欢迎”模式中的示例中搜索`Application Example`，以进一步了解它们，以及是否可以进一步自定义它们。
 
@@ -399,15 +399,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->actionNewFile->setIcon(QIcon(":_文件路径__"));  // 通过 `ui->` 访问
+    ui->actionNewFile->setIcon(QIcon(":__文件路径__"));  // 通过 `ui->` 访问
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-
 ```
 
 ## 添加 Action（菜单/选项）
@@ -488,7 +486,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 ## 工具栏 Tool Bar
 
-### 通过设计器创建
+**通过设计器创建：**
 
 <img src="doc/pic/README/image-20221018170737986.png" alt="image-20221018170737986" style="zoom:50%;" />
 
@@ -496,7 +494,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 <img src="doc/pic/README/image-20221018170902491.png" alt="image-20221018170902491" style="zoom:50%;" />
 
-### 通过代码创建
+
+
+**通过代码创建：**
 
 主窗口的工具栏上可以有**==多个==**工具条，通常采用一个菜单对应一个工具条的的方式，也可根据需要进行工具条的划分。
 
@@ -546,7 +546,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-## 状态栏
+## 状态栏 Status Bar
 
 **状态栏 `QStatusBar` 也只能最多有==一个==**
 
@@ -568,7 +568,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-## 铆接部件
+## 铆接部件 Dock Widget
 
 ![image-20221203144419409](doc/pic/README/image-20221203144419409.png)
 
@@ -880,18 +880,49 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
+# UI 控件及工具
 
-# 窗口布局
+以下是Qt设计器中所提供的控件：
 
-对于 Qt 中的窗口布局，建议使用 ==Containers -> Widget-> 自定义布局==。不建议使用 Latouts！
+![image-20240325003522709](doc/img/image-20240325003522709.png)
+
+## Layouts & Spacers
+
+> 窗口布局 Layouts & Spacers
+
+**Layouts - 布局**：这些布局用于管理窗口小部件的显示方式。在外观上，它们是不可见的（因为它们不是`QWidget`子类），并且它们仅影响添加到它们的小部件。 请注意，布局根本不是小部件，它们是用来管理小部件的显示方式的逻辑类。 尝试在用户界面上放置任何布局小部件，然后在其中添加一些按钮或显示小部件，以查看其布局如何根据布局类型进行更改。 
+
+<img src="doc/img/image-20240326001341260.png" alt="image-20240326001341260" style="zoom:67%;" />
+
+
+
+**【重点】**：但是对于 Qt 中的窗口布局，建议使用 ==Containers -> Widget-> 自定义布局（在Widget内部排列）==。**不建议直接使用 Latouts！因为这样方便后期增加新的控件**
 
 <img src="doc/pic/README/image-20221130163634192.png" alt="image-20221130163634192" style="zoom:50%;" />
 
+| 布局（英）        | 布局（中） | 说明                                                         | 效果                                                         | Qt等价类（相当于哪个类） |
+| ----------------- | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------ |
+| Vertical Layout   | 垂直布局   | 它们用于具有垂直布局，即一列小部件                           | ![image-20240326195248614](doc/img/image-20240326195248614.png) | `QVBoxLayout`            |
+| Horizontal Layout | 水平布局   | 用于水平排列小部件                                           | ![image-20240326195253843](doc/img/image-20240326195253843.png) | `QHBoxLayout`            |
+| Grid Layout       | 网格布     | 可用于创建具有任意行和列数的小部件网格                       | ![image-20240326195259488](doc/img/image-20240326195259488.png) | `QGridLayout`            |
+| Form Layout       | 表单布局   | 可用于使用一些标签和它们对应的输入小部件呈现类似**表单的外观**（2列n行，并且其中某一行可以对应多个列）。想象一下填写表单，您就会明白 | ![image-20240326195309350](doc/img/image-20240326195309350.png) | `QFormLayout`            |
 
+---
+
+**Spacers - 分隔符**：类似于弹簧，它们在视觉上不可见，但会影响将其他窗口小部件添加到布局时的显示方式。在用户更改窗口大小时候小控件间隙可以动态缩放。间隔符的类型为`QSpacerItem`，但是通常，它们绝不能直接在代码中使用。
+
+| 分隔符（英）      | 分隔符（中） | 效果                                                         |
+| ----------------- | ------------ | ------------------------------------------------------------ |
+| Horizontal Spacer | 水平分隔符   | ![image-20240326195926664](doc/img/image-20240326195926664.png) |
+| Vertical Spacer   | 垂直分隔符   | ![image-20240326195931201](doc/img/image-20240326195931201.png) |
+
+---
+
+以下是常用的设置说明及操作方法：
 
 - **要想移除一个widget 上下的非常大的间隙，要将 ==sizePolicy -> 垂直策略 -> 设为Fixed==**
 
-    ![image-20221130161212231](doc/pic/README/image-20221130161212231.png)
+    <img src="doc/pic/README/image-20221130161212231.png" alt="image-20221130161212231" style="zoom: 67%;" />
     
 - **要想让 widget 保持==几行几列== 的均匀布局，点击上面的==栅格布局==按钮**
 
@@ -899,29 +930,23 @@ connect(ui->actionOpenFile, &QAction::triggered,
     
 - 要想在改变窗口大小时还保证布局，要使用右侧的==弹簧控件==。并在右侧自定义弹簧长度
 
-    ![image-20221130161827092](doc/pic/README/image-20221130161827092.png)
+    <img src="doc/pic/README/image-20221130161827092.png" alt="image-20221130161827092" style="zoom:67%;" />
     
 - **要想移除控件之间==边缘==的间隙，需要将 Layout 设置为 0**
 
-    ![image-20221130162043745](doc/pic/README/image-20221130162043745.png)
+    <img src="doc/pic/README/image-20221130162043745.png" alt="image-20221130162043745" style="zoom:67%;" />
 
     
 
 - **要想使窗口保持固定大小，可以将默认、最小、最大设置为一样**
 
-    ![image-20221130162353685](doc/pic/README/image-20221130162353685.png)
+    <img src="doc/pic/README/image-20221130162353685.png" alt="image-20221130162353685" style="zoom:67%;" />
 
-    
+---
 
-- 
+## Buttons
 
-
-
-# UI 控件及工具
-
-![image-20240325003522709](doc/img/image-20240325003522709.png)
-
-## 按钮 Buttons
+> 按钮 Buttons
 
 ![image-20240325183354563](doc/img/image-20240325183354563.png)
 
@@ -938,13 +963,32 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
-## 项目视图（基于模型）Item Views (Model-based)
+## Item Views (Model-based)
 
-**项目视图（基于模型）Item Views (Model-based)**：这基于**模型视图控制器（MVC, Model-view-controller）设计模式**； 它们可用于表示不同类型容器中的模型数据。
+> **项目视图（基于模型）- Item Views (Model-based)**
+>
+> 
+>
+> https://cloud.tencent.com/developer/article/1845045
+>
+> Item Views（表项视图）和Item Widgets（部件）区别
+>
+> - **两者的关系**：Item Views（Model-Based）类内的控件是Item Widgets（Item-Based）内对应控件的父类，如QTreeWidget是从QTreeView派生的。
+> - **两者的区别**：
+>     - Item Views（Model-Based）的对象进行数据操作相对比较复杂，但**处理及展示[大数据](https://cloud.tencent.com/solution/bigdata?from_column=20065&from=20065)量时性能高**；
+>     - Item Widgets（Item-Based）的数据操作比较简单，但处理及展示大数据量时性能相对低。Item Widgets在开发中没有Item Views灵活，实际上Item Widgets就是在Item Views的基础上绑定了一个默认的存储并提供了相关方法。
+
+![image-20240325235139974](doc/img/image-20240325235139974.png)
+
+**项目视图（基于模型）Item Views (Model-based)**：这==基于**模型-视图-控制器（MVC, Model-view-controller）设计模式**==； 它们可用于表示不同类型容器中的模型数据。
 
 如果您完全不熟悉 MVC 设计模式，那么我建议您在这里停顿一下，首先通读一本综合性的文章，**Qt 文档中名为“[模型/视图编程（Model/View Programming）](https://doc.qt.io/qt-6/model-view-programming.html)”的文章**。 它是非常重要的架构，您肯定会在以后的项目中遇到它，因此我建议您花一些时间来学习它。
 
-
+- **列表视图 - List View**：这以一个简单的列表形式展示模型中的项，没有任何层次结构（对应的Qt类为`QListView`）。
+- **树视图 - Tree View**：这以层次化的树视图展示模型中的项。（对应的Qt类为`QTreeView`）。
+- **表视图 - Table View**：这用于以表格形式展示模型中的数据，可以有任意数量的行和列。这在展示SQL数据库或查询的表格时特别有用（对应的Qt类为`QTableView`）。
+- **列视图 - Column View**：这与列表视图相似，不同之处在于列视图还展示存储在模型中的层次化数据（对应的Qt类为`QColumnView`）。
+- **撤销视图 - Undo View**：`QUndoView` 是一个展示撤销堆栈内容的Qt小部件。通过点击视图中的命令，可以使文档的状态向前或向后回滚到该命令。这提供了一个直观的方式，让用户可以轻松地浏览并选择撤销或重做的操作。更多详情，请访问[官方文档](https://doc.qt.io/qt-6/qundoview.html#details)。
 
 
 
@@ -954,9 +998,9 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 ### List Widget
 
-- ![image-20221201110928964](doc/pic/README/image-20221201110928964.png)
+![image-20221201110928964](doc/pic/README/image-20221201110928964.png)
 
--  List Widget 可以向里面添加 Items
+- List Widget 可以向里面添加 Items
 
     - `QListWidgetItem`
 
@@ -1162,69 +1206,51 @@ connect(ui->actionOpenFile, &QAction::triggered,
 
 
 
-## 其他常用控件
+## Containers
 
-### Scroll Area
+**Containers - 容器**：用于在用户界面上分组组件。正如它们名称所暗示的，**容器可以包含组件**。
 
-![image-20221203140013717](doc/pic/README/image-20221203140013717.png)
+<img src="doc/img/image-20240326202432553.png" alt="image-20240326202432553" style="zoom:50%;" />
 
-如果控件不够大，（在做布局之后）会自动增加滚动条
+| 布局（英）                                                   | 布局（中） | 说明                                                         | 效果/使用                                                    | 对应的Qt类       |
+| ------------------------------------------------------------ | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------- |
+| **Group Box**                                                | 分组框     | 一个简单的带有标题和边框的分组框                             | ![image-20240326213453534](doc/img/image-20240326213453534.png) | `QGroupBox`      |
+| ![](doc/img/image-20221203140013717.png)<br />**Scroll Area** | 滚动区域   | 提供一个可滚动区域，非常适合显示由于屏幕尺寸小或可查看数据量巨大而无法完全显示的内容（比如一个地方需要塞很多按钮）。如果控件不够大，（在做布局之后）会自动增加滚动条 | ![image-20240326204108957](doc/img/image-20240326204108957.png) | `QScrollArea`    |
+| ![image-20221203140151611](doc/img/image-20221203140151611.png)<br />**Tool Box** | 工具箱     | 可用于在不同标签的列中==【上下】==分组组件。点击每个标签将（展开）显示其包含的组件，并隐藏（折叠）其他标签的内容。类似于老版 QQ 的分组：“朋友，家人，黑名单...” | 要想修改==页==的名称和插入页，采用以下方式：<br />![image-20221203140946678](doc/img/image-20221203140946678.png) | `QToolBox`       |
+| ![image-20221203140743369](doc/pic/README/image-20221203140743369.png)<br />**Tab Widget** | 标签小部件 | 类似于浏览器的多==标签==页。可用于在==【横向】==标签页中显示不同组的组件。通过点击相关标签，可以切换到每个页面（或组件组） | 要想修改标签的名称和插入标签，采用以下方式：<br />![image-20221203141237375](doc/img/image-20221203141237375.png) | `QTabWidget`     |
+| ![image-20221203141508675](doc/img/image-20221203141508675.png)<br />**Stacked Widget** | 堆叠小部件 | *[具体效果及使用见此章节](#Stacked Widget)*，与标签小部件类似，但一次只显示一个页面（或组件组）。当您想将不同的用户界面设计到一个文件中，并根据用户操作（通过代码或者自定义按下某个按钮）在它们之间切换时，这特别有用 | ![image-20221203141501241](doc/img/image-20221203141501241.png) | `QStackedWidget` |
+| **Frame**                                                    | 空框架     | 可以用作我们想要为其加框的组件的占位符。这个组件也是所有具有框架的组件的基类。效果上类似一个**带框**的空 `Widget` | ![image-20240326211851885](doc/img/image-20240326211851885.png) | `QFrame`         |
+| **Widget**                                                   | 空部件     | 与`QWidget`类相同，这是所有Qt组件的基类型。这个组件本身几乎不包含任何内容，当我们想要创建我们自己类型的组件（除了现有的Qt组件）时，它很有用。正如上面说的，我们一般以此为基础在里面排列自己的控件 | [具体效果及使用见此章节](#Layouts & Spacers)                 | -                |
+| **MDI Area**                                                 | MDI区域    | 可以用于在窗口或Qt组件内**创建所谓的多文档接口**。在MDI区域内使用设计器创建新窗口时，您可以简单地右键单击一个空白处并从菜单中选择“添加子窗口”。同样地，“下一个子窗口”、“上一个子窗口”、“级联”、“平铺”和“子窗口/删除”都是当您在MDI区域组件上右键单击时才有效的选项。 | ![image-20240326203518643](doc/img/image-20240326203518643.png) | `QMdiArea`       |
+| ![image-20221203144419409](doc/img/image-20221203144419409.png)<br />**Dock Widget** | 铆接部件   | 铆接部件，也称==浮动窗口==，可以有==多个==。**注意：铆接部件的位置是相对于核心部件的！围绕着核心部件的，而不是相对于整个窗口！** | [具体效果及使用见此章节](#铆接部件 Dock Widget)              | `QDockWidget`    |
 
-![image-20221203140110110](doc/pic/README/image-20221203140110110.png)
-
-### Tool Box
-
-![image-20221203140151611](doc/pic/README/image-20221203140151611.png)
-
-- 类似于 QQ 的分组：“朋友，家人，黑名单...”
-
-要想修改==页==的名称和插入页，采用以下方式：
-
-![image-20221203140946678](doc/pic/README/image-20221203140946678.png)
-
-
-
-### Tab Widget
-
-类似于浏览器的多==标签==页
-
-![image-20221203140743369](doc/pic/README/image-20221203140743369.png)
-
-要想修改标签的名称和插入标签，采用以下方式：
-
-![image-20221203141237375](doc/pic/README/image-20221203141237375.png)
+部分小控件的具体说明在以下小节中：
 
 
 
 ### Stacked Widget
 
-![image-20221203141508675](doc/pic/README/image-20221203141508675.png)
+Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其实就是切换了一个栈容器**
 
-类似于 Qt 左侧的切换窗，**每点击一个标签，其实就是切换了一个栈容器**
-
-![image-20221203141501241](doc/pic/README/image-20221203141501241.png)
-
-
+<img src="doc/pic/README/image-20221203141501241.png" alt="image-20221203141501241" style="zoom:67%;" />
 
 **我们可以把之前做的东西都放到这个 Stacked Widget 中，鼠标拖动过去就好**
 
-![image-20221203141650280](doc/pic/README/image-20221203141650280.png)
-
-
+<img src="doc/pic/README/image-20221203141650280.png" alt="image-20221203141650280" style="zoom:50%;" />
 
 **通过小箭头切换栈容器，如果页不够用就添加一个。**但是注意，==这个小箭头只是辅助我们设计的，程序运行起来之后，并不会显示，所以我们可以通过自定义按钮，通过 `stackedWidget->setCurrentIndex(索引)` 切换栈==
 
-![image-20221203142009053](doc/pic/README/image-20221203142009053.png)
-
-
-
-
+<img src="doc/pic/README/image-20221203142009053.png" alt="image-20221203142009053" style="zoom:67%;" />
 
 **效果及代码：**
 
-![image-20221203144032185](doc/pic/README/image-20221203144032185.png)
+点击右侧按钮会跳转到不同页面
+
+<img src="doc/pic/README/image-20221203144032185.png" alt="image-20221203144032185" style="zoom:67%;" />
 
 
+
+## 其他
 
 ### Combo Box
 
@@ -1345,6 +1371,28 @@ Label 不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图�
 
 ![image-20221203162325641](doc/pic/README/image-20221203162325641.png)
 
+## 其他高级控件
+
+###  [ActiveX](https://so.csdn.net/so/search?q=ActiveX控件&spm=1001.2101.3001.7020)
+
+> 原文链接：https://blog.csdn.net/qq_37529913/article/details/132819695
+
+ActiveX控件是一种可重用的二进制组件，用于在**Windows操作系统上提供特定的功能和服务**（比如 Qt 中直接打开 word 文章）。以下是一些常见的ActiveX控件的示例：
+
+1. Internet Explorer Web Browser Control：用于在应用程序中嵌入和显示Web浏览器。
+2. Microsoft Office组件（如Word、Excel、PowerPoint）：用于在应用程序中嵌入和操作Office文档。
+3. Windows Media Player Control：用于在应用程序中嵌入和播放音频和视频文件。
+4. Adobe Flash Player Control：用于在应用程序中嵌入和播放Flash动画和视频。
+5. Crystal Reports Viewer Control：用于在应用程序中显示和打印Crystal Reports报表
+6. Windows Common Controls（如TreeView、ListView、ProgressBar）：用于在应用程序中创建常见的用户界面控件。
+7. Microsoft DataGrid Control：用于在应用程序中显示和编辑数据表格。
+8. Microsoft Windows Image Acquisition Control：用于在应用程序中获取和处理图像。
+9. Microsoft Windows Media Encoder Control：用于在应用程序中进行音频和视频编码。
+
+
+
+`QAxWidget`仅**适用于 Windows**。 但是，即使在 Windows 上，仅将`QAxWidget`添加到窗口中也无法使它正常工作，因为它依赖于称为`axcontainer`的 Qt 模块。 目前，您可以跳过将此小部件添加到窗口的操作，但是在本章稍后介绍了如何向您的 Qt 项目中添加不同的 Qt 模块之后，您可以稍后再次尝试。
+
 
 
 # 自定义控件
@@ -1388,7 +1436,7 @@ Label 不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图�
         >
         > ![image-20221203165138558](doc/pic/README/image-20221203165138558.png)
 
-    3. ** -> 点击提升**，然后就会发现之前的 `Widget` 变成了我们自己的控件
+    3. **-> 点击提升**，然后就会发现之前的 `Widget` 变成了我们自己的控件
 
         ![image-20221203164845827](doc/pic/README/image-20221203164845827.png)
 
@@ -1537,8 +1585,6 @@ Label 不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图�
     ```
 
     
-
-
 
 **方式二（推荐）：**
 
