@@ -1248,6 +1248,8 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 <img src="doc/pic/README/image-20221203144032185.png" alt="image-20221203144032185" style="zoom:67%;" />
 
+## Input Widget
+
 
 
 ## 其他
