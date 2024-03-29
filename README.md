@@ -606,278 +606,6 @@ this->setCentralWidget(textEdit);  // 【重点】将 TextEdit 设置为核心�
 **核心部件与铆接部件代码及结果：**
 ![image-20221018162054408](doc/pic/README/image-20221018162054408.png)
 
-# 资源文件
-
-**Qt 资源系统是一个跨平台的资源机制，用于将程序运行时所需要的资源以二进制的形式存储于可执行文件内部。**如果你的程序需要加载特定的资源（图标、文本翻译等），那么，将其放置在资源文件中，就再也不需要担心这些文件的丢失。也就是说，如果你将资源以资源文件形式存储，它是会编译到可执行文件内部。
-
-使用 Qt Creator 可以很方便地创建资源文件。我们可以在工程上点右键，选择“添加新文件…”，可以在 Qt 分类下找到“Qt 资源文件”：
-
-
-
-1. 添加 Qt 资源文件，这个文件是用于管理我们资源文件的
-
-    <img src="doc/pic/README/image-20221018171522579.png" alt="image-20221018171522579" style="zoom:50%;" />
-
-2. 为 Qt 资源文件起一个名字
-
-    ![image-20221018171651888](doc/pic/README/image-20221018171651888.png)
-
-3. 以文本的形式打开刚刚创建的 `.qrc` 文件
-
-    <img src="doc/pic/README/image-20221018171743063.png" alt="image-20221018171743063" style="zoom: 67%;" />
-
-4. 将我们用到的资源（图片、视频等）放置在当前 Qt 工程的目录下
-
-5. 添加前缀并且添加资源文件
-
-    <img src="doc/pic/README/image-20221018172146656.png" alt="image-20221018172146656" style="zoom:50%;" />
-
-    
-
-    **我们给这个文件取一个“别名”，以后就以这个别名来引用这个文件。使用别名的好处是，如果更改了文件名，代码中使用别名的地方不需要修改。具体做法是，选中这个文件，添加别名信息：**
-
-    <img src="doc/pic/README/image-20221018172452507.png" alt="image-20221018172452507" style="zoom:50%;" />
-
-    
-
-    添加后的资源文件将出现在 Qt 资源文件之下:
-
-    ![image-20221018172310863](doc/pic/README/image-20221018172310863.png)
-
-    
-
-6. 使用资源文件
-
-    要符合格式 `:前缀名/文件名`，我们可以直接右键文件拷贝使用
-
-    <img src="doc/pic/README/image-20221018173232309.png" alt="image-20221018173232309" style="zoom:50%;" />
-
-运行起来有以下效果：
-
-![image-20221018173318599](doc/pic/README/image-20221018173318599.png)
-
-
-
-
-
-# 对话框 QDialog
-
-对话框是 GUI 程序中不可或缺的组成部分。很多不能或者不适合放入主窗口的功能组件都必须放在对话框中设置。**对话框通常会是一个顶层窗口，出现在程序最上层，用于实现短期任务或者简洁的用户交互。**
-
-Qt 中使用 QDialog 类实现对话框。就像主窗口一样，我们通常会设计一个类继承 QDialog。QDialog（及其子类，以及所有Qt::Dialog类型的类）的对于其 parent 指针都有额外的解释：**如果 parent 为 NULL，则该对话框会作为一个顶层窗口，否则则作为其父组件的子对话框（此时，其默认出现的位置是 parent 的中心）。顶层窗口与非顶层窗口的区别在于，顶层窗口在任务栏会有自己的位置，而非顶层窗口则会共享其父组件的位置。**
-
-**对话框分为==模态对话框==和==非模态对话框==。**
-
-
-
-==模态与非模态的实现：==
-
-- 使用`QDialog::exec()`实现**应用程序级别**的模态对话框
-
-- 使用`QDialog::open()`实现**窗口级别**的模态对话框
-
-- 使用`QDialog::show()`实现**非模态对话框**。
-
-
-
-- **模态对话框**，在==[栈]==上创建，对话框弹出之后会通过 `.exec()` 阻塞，**会阻塞同一应用程序中其它窗口的输入**。
-
-    模态对话框很常见，比如“打开文件”功能。你可以尝试一下记事本的打开文件，当打开文件对话框出现时，我们是不能对除此对话框之外的窗口部分进行操作的。
-
-    - **应用程序级别的模态**
-
-        当该种模态的对话框出现时，用户必须首先对对话框进行交互，直到关闭对话框，然后才能访问程序中其他的窗口
-
-        
-
-    - **窗口级别的模态**
-
-        该模态仅仅阻塞与对话框关联的窗口，但是依然允许用户与程序中其它窗口交互。窗口级别的模态尤其适用于**多窗口模式**
-
-        
-
-- 与此相反的是**非模态对话框**，在==[堆]==上创建，对话框通过 `.show()` 弹出，弹出后依旧可以操作其他窗口。
-
-    例如查找对话框，我们可以在显示着查找对话框的同时，继续对记事本的内容进行编辑。
-
-    > 如果对话框一闪而过：
-    >
-    > **show()函数不会阻塞当前线程，对话框会显示出来，然后函数立即返回，代码继续执行**。
-    >
-    > 所以注意，如果 dialog 是建立在栈上的，show()函数返回，MainWindow::open()函数结束，dialog 超出作用域被析构，因此对话框消失了。
-    >
-    > **所以非模态对话框要在[堆]上创建。**
-
-    **注意：非模态对话框一定要通过 `dialog_2->setAttribute(Qt::WA_DeleteOnClose);`设置 Dialog 对话框在关闭时自动销毁对话框，并释放内存！如果不设置只会在 MainWindow 退出时才释放，这可能造成内存泄漏** 
-
-    
-
-## 自定义对话框
-
-```c++
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-
-    /* 我们使用 Lambda 表达式的形式弹出 Dialog对话框，并连接信号和槽 */
-    connect(ui->actionopenDialog, &QAction::triggered,
-            this, [=](){
-
-        /** Dialog 对话框有两种：
-         *  - 模态对话框：    在[堆]上创建，对话框弹出之后会通过 `.exec()` 阻塞，无法操作其他窗口
-         *  - 非模态对话框：  在[栈]上创建，对话框通过 `.show()` 弹出，弹出后依旧可以操作其他窗口
-         */
-
-#if 0
-        /* 模态对话框 */
-        QDialog dialog_1(this);
-        dialog_1.resize(80, 60);
-        dialog_1.exec();  // 阻塞
-#endif
-
-        /* 非模态对话框 */
-        QDialog* dialog_2 = new QDialog(this);  // 创建到堆上，不然 Lambda 表达式结束就会给释放了（窗口一闪而过）
-        dialog_2->resize(100, 80);
-        dialog_2->setAttribute(Qt::WA_DeleteOnClose);  // 【重点】设置 Dialog 对话框在关闭时释放内存！如果不设置只会在 MainWindow 退出时才释放，这可能造成内存泄漏
-        dialog_2->show();
-
-
-        qDebug() << "Lambda 表达式内部";
-
-    }); // END_LAMBDA
-}
-```
-
-
-
-## 消息对话框 QMessageBox
-
-QMessageBox用于显示消息提示。我们一般会使用其提供的几个 static 函数：
-
-| 名称                                                         | 介绍           |                                                              |
-| ------------------------------------------------------------ | -------------- | ------------------------------------------------------------ |
-| QMessageBox::`critical`(this, "[Title]错误！", "[Text]critical"); | 错误对话框     | ![image-20221128225354793](doc/pic/README/image-20221128225354793.png) |
-| QMessageBox::`warning`(this, "[Title]警告！", "[Text]warning"); | 警告对话框     | ![image-20221128225405311](doc/pic/README/image-20221128225405311.png) |
-| QMessageBox::`information`(this, "[Title]信息！", "[Text]information"); | 信息对话框     | ![image-20221128225428076](doc/pic/README/image-20221128225428076.png) |
-| QMessageBox::`about`(this, "about 函数", "text部分");        | 会弹出一段文字 | ![image-20221128225157690](doc/pic/README/image-20221128225157690.png) |
-| **QMessageBox::`question`(this, "标题", "提示内容", QMessageBox::Save \| QMessageBox::Cancel, QMessageBox::Cancel)** | **询问对话框** | **参数为：**1. 父亲，2. 标题，3.提示内容， 4. 按键类型， 5. 关联回车按键（默认按哪个）<br />![image-20221128225434576](doc/pic/README/image-20221128225434576.png)<br />**返回**点击的按钮类型 |
-
-示例代码：
-
-```c++
-    /* 标准对话框 QMessageBox 介绍（Static 成员）：*/
-    connect(ui->actionQMessageBox, &QAction::triggered,
-            this, [=](){
-        QMessageBox::about(this, "static QMessageBox::about 函数", "text部分"); // 会弹出一段文字
-        QMessageBox::aboutQt(this, "title部分");  // 会弹出 Qt 的声明
-
-        QMessageBox::critical(this, "[Title]错误！", "[Text]critical");        // 错误对话框
-        QMessageBox::warning(this, "[Title]警告！", "[Text]warning");          // 警告对话框
-        QMessageBox::information(this, "[Title]信息！", "[Text]information");  // 信息对话框
-
-        /* 询问对话框
-         * 参数：1. 父亲，2. 标题，3.提示内容， 4. 按键类型， 5. 关联回车按键（默认按哪个）
-         */
-        if (QMessageBox::Save ==
-                QMessageBox::question(this, "问题", "question", QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Cancel))
-        {
-            qDebug() << "按键是 QMessageBox::Save";
-        }
-        else
-        {
-            qDebug() << "按键类型是 QMessageBox::Cancel";
-        }
-
-
-    }); // END_LAMBDA
-```
-
-QMessageBox类的 static 函数优点是方便使用，缺点也很明显：非常不灵活。我们只能使用简单的几种形式。为了能够定制QMessageBox细节，我们必须使用QMessageBox的属性设置 API。如果我们希望制作一个询问是否保存的对话框，我们可以使用如下的代码：
-
-```c++
-QMessageBox msgBox;
-msgBox.setText(tr("The document has been modified."));
-msgBox.setInformativeText(tr("Do you want to save your changes?"));
-msgBox.setDetailedText(tr("Differences here..."));
-msgBox.setStandardButtons(QMessageBox::Save
-                          | QMessageBox::Discard
-                          | QMessageBox::Cancel);
-msgBox.setDefaultButton(QMessageBox::Save);
-int ret = msgBox.exec();
-switch (ret) 
-{
-case QMessageBox::Save:
-    qDebug() << "Save document!";
-    break;
-case QMessageBox::Discard:
-    qDebug() << "Discard changes!";
-    break;
-case QMessageBox::Cancel:
-    qDebug() << "Close document!";
-    break;
-}
-
-```
-
-msgBox 是一个建立在栈上的QMessageBox实例。我们设置其
-
-- 主要文本信息为“The document has been modified.”，
-- informativeText 则是会在对话框中显示的简单说明文字。
-- 下面我们使用了一个detailedText，也就是详细信息，当我们点击了详细信息按钮时，对话框可以自动显示更多信息。
-- 我们自己定义的对话框的按钮有三个：保存、丢弃和取消。
-- 然后我们使用了exec()是其成为一个模态对话框，根据其返回值进行相应的操作。
-
-
-
-## 颜色对话框
-
-- 包含头文件 `#include <QColorDialog>`
-
-`QColor color = QColorDialog::getColor(QColor(0, 255, 255));`，调用系统对话框，获取颜色值
-
-- 参数 1：默认选择的颜色值 (r, g, b)
-- 返回一个 `QColor` 颜色值
-
-
-
-**示例代码：**
-
-![image-20221130145334893](doc/pic/README/image-20221130145334893.png)
-
-
-
-## 文件对话框
-
-Qt 的标准对话框提供静态函数，用于返回一个模态对话框，包含头文件 `#include <QFileDialog>`
-
-```c++
-QString getOpenFileName(QWidget * parent = 0,									// 父窗口
-                        const QString & caption = QString(),	// 对话框标题
-                        const QString & dir = QString(),			// 对话框打开时的默认目录, “.” 代表程序运行目录
-                        const QString & filter = QString(),		// 过滤器, 过滤器就是用于过滤特定的后缀名。如果我们使用“Image Files(*.jpg *.png)”，则只能显示后缀名是 jpg 或者 png 的文件。如果需要多个过滤器，使用“;;”分割，比如“JPEG Files(*.jpg);;PNG Files(*.png)”；
-                        QString * selectedFilter = 0,					// 默认选择的过滤器；
-                        Options options = 0)	// 对话框的一些参数设定。比如只显示文件夹等等，它的取值是enum QFileDialog::Option，每个选项可以使用 | 运算组合起来。
-```
-
-**QFileDialog::getOpenFileName()返回值是选择的文件路径。**我们将其赋值给 path。通过判断 path 是否为空，可以确定用户是否选择了某一文件。只有当用户选择了一个文件时，我们才执行下面的操作。
-
-在saveFile()中使用的QFileDialog::getSaveFileName()也是类似的。使用这种静态函数，在 Windows、Mac OS 上面都是直接调用本地对话框，但是 Linux 上则是QFileDialog自己的模拟。这暗示了，如果你不使用这些静态函数，而是直接使用QFileDialog进行设置，那么得到的对话框很可能与系统对话框的外观不一致。这一点是需要注意的。
-
-
-
-**示例代码：**
-
-```c++
-connect(ui->actionOpenFile, &QAction::triggered,
-        this, [=](){
-          QString path = QFileDialog::getOpenFileName(this, "打开文件狐", "/Users/fox/雪狸的文件", "(*.png *.jpg)");
-          qDebug() << "选择的文件路径为：" << path;
-        });
-```
-
-
 
 
 # UI 控件及工具
@@ -1250,13 +978,15 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 ## Input Widget
 
+正如其名，你可以使用以下小部件来**获取用户输入数据**。
 
-
-## 其他
+![image-20240329131140453](doc/img/image-20240329131140453.png)
 
 ### Combo Box
 
 ![image-20221203144554453](doc/pic/README/image-20221203144554453.png)
+
+**组合框**：有时被称为**下拉列表**；它可以用来在很小的屏幕空间内选择列表中的一个选项。任何时候都只显示所选的选项。用户甚至可以根据其配置输入自己的值。（此小部件对应的 Qt 类称为 `QComboBox`）。
 
 **下拉框**，可以通过代码添加值：
 
@@ -1269,13 +999,15 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 **效果及代码：**
 
-![image-20221203145348848](doc/pic/README/image-20221203145348848.png)
+<img src="doc/pic/README/image-20221203145348848.png" alt="image-20221203145348848" style="zoom:67%;" />
 
 
 
 ### Font Combo Box
 
 ![image-20221203145456249](doc/pic/README/image-20221203145456249.png)
+
+**字体组合框**：与组合框类似，但它可以用来选择一个字体家族。字体列表是使用计算机上可用的字体创建的。
 
 **选择字体**
 
@@ -1287,22 +1019,20 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 ![image-20221203145609404](doc/pic/README/image-20221203145609404.png)
 
-**单行编辑框**
-
-
+**单行编辑框**，**行编辑**：可以用来输入和显示单行文本（此小部件对应的 Qt 类称为 `QLineEdit`）。
 
 **设置焦点：** `setFocus();`
-
-
 
 **可以对输入的内容做不同的输入模式：**
 
 ![image-20221203145713706](doc/pic/README/image-20221203145713706.png)
 
-- `Normal`，可以正常输入文字内容 ![image-20221203145826876](doc/pic/README/image-20221203145826876.png)
-- `NoEcho`，输入内容但是不显示类似于 Linux 下输入密码的效果 ![image-20221203145938500](doc/pic/README/image-20221203145938500.png)
-- `Password`，会变成小黑圆点 ![image-20221203145956363](doc/pic/README/image-20221203145956363.png)
-- `PasswordEchoOnEdit`，**失去焦点时**才会变成小黑圆点 ![image-20221203150006693](doc/pic/README/image-20221203150006693.png)
+| 模式                 | 说明                                                    | 效果                                                         |
+| -------------------- | ------------------------------------------------------- | ------------------------------------------------------------ |
+| `Normal`             | 可以正常输入文字内容                                    | ![image-20221203145826876](doc/pic/README/image-20221203145826876.png) |
+| `NoEcho`             | 可以输入**内容但是不显示**类似于 Linux 下输入密码的效果 | ![image-20221203145938500](doc/pic/README/image-20221203145938500.png) |
+| `Password`           | 任何输入实时会变成小黑圆点                              | ![image-20221203145956363](doc/pic/README/image-20221203145956363.png) |
+| `PasswordEchoOnEdit` | **失去焦点时**才会变成小黑圆点                          | ![image-20221203150006693](doc/pic/README/image-20221203150006693.png) |
 
 
 
@@ -1312,30 +1042,31 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 **区别：**
 
-- `Text Edit` 输入内部的文字**可带有格式**，比如颜色、大小、加粗...
-- `Plain Text Edit`  只能输入**纯文本**
+- `Text Edit` ：**文本编辑**，可以用来输入和显示多行**富文本**。输入内部的文字**可带有格式**，比如颜色、大小、加粗...。（此小部件对应的 Qt 类称为 `QTextEdit`）。
+- `Plain Text Edit`： **纯文本编辑**，可以用来查看和编辑多行**纯文本（不带任何格式）**。把它想象成一个简单的记事本类小部件（此小部件对应的 Qt 类称为 `QPlainTextEdit`）。
+
+
 
 
 
 ### (Double) Spin Box
 
+![image-20221203150537882](doc/img/image-20221203150537882.png)
+
 点击箭头可以加减，带有 Double 的是可以输入双精度的
 
-![image-20221203150537882](doc/pic/README/image-20221203150537882.png)
-
-
+- **SpinBox 微调框**：用于输入一个整数或者离散的值集合，如月份名称（此小部件对应的 Qt 类称为 `QSpinBox`）。
+- **Double Spin Box双精度微调框**：与微调框类似，但它接受双精度值（此小部件对应的 Qt 类称为 `QDoubleSpinBox`）。
 
 ![image-20221203150611547](doc/pic/README/image-20221203150611547.png)
-
-
 
 ### (Date/Time) Edit
 
 ![image-20221203150856557](doc/pic/README/image-20221203150856557.png)
 
-- `Time Edit`：选择时间
-- `Date Edit`：选择日期
-- `Date/Time Edit`：时间加日期
+- `Time Edit`**时间编辑**：可以用来输入时间值。（此小部件对应的 Qt 类称为 `QTimeEdit`）。
+- `Date Edit` **日期编辑**：可以用来输入日期值（此小部件对应的 Qt 类称为 `QDateEdit`）。
+- `Date/Time Edit`**日期/时间编辑**：可以用来输入日期和时间值（此小部件对应的 Qt 类称为 `QDateTimeEdit`）。
 
 ![image-20221203150842960](doc/pic/README/image-20221203150842960.png)
 
@@ -1343,7 +1074,7 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 ![image-20221203155115323](doc/pic/README/image-20221203155115323.png)
 
-**滚轮**
+**滚轮**,**刻度盘**：类似于滑块，但形状是圆的，类似于刻度盘。它可以用来**输入指定范围内的整数值**（此小部件对应的 Qt 类称为 `QDial`）。
 
 **效果及代码：**
 
@@ -1361,17 +1092,40 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 ![image-20221203161108507](doc/pic/README/image-20221203161108507.png)
 
-**注意：下面的那两种滚动条，父类都是 `QSpinBox`，所以在使用信号和槽的时候要调用父类的**
+- **Horizontal/Vertical Bar 水平/垂直滚动条**：可以用来添加滚动功能，包括水平和垂直方向（此小部件对应的 Qt 类称为 `QScrollBar`）。
+- **Horizontal/Vertical Slider 水平/垂直滑块**：可以用来在指定范围内输入一个整数值（此小部件对应的 Qt 类称为 `QSlider`）。
+
+==**注意：下面的那两种滚动条，父类都是 `QSpinBox`，所以在使用信号和槽的时候要调用父类的**==
 
 
+
+### Key Sequence Edit
+
+![image-20240329145518924](doc/img/image-20240329145518924.png)
+
+**Key Sequence Edit 键序列编辑**：可以用来输入键盘快捷键（此小部件对应的 Qt 类称为 `QKeySequenceEdit`）。
+
+不应将其与 `QKeySequence` 类混淆，后者根本不是一个小部件。`QKeySequenceEdit` 用于从用户那里获取 `QKeySequence`。获得 `QKeySequence` 后，我们可以将其与 `QShortcut` 或 `QAction` 类一起使用，以触发不同的功能/槽。本章后面将介绍信号/槽的基础知识。
+
+
+
+## Display Widget
+
+**显示小部件**：可用于显示输出数据，如数字、文本、图片、日期等：
+
+<img src="doc/img/image-20240329145624474.png" alt="image-20240329145624474" style="zoom:50%;" />
 
 ### Label
 
-Label 不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图（QMovie）`
+**Label 标签** -  不仅可以显示文字，还可以显示`图片（QPixMap）`和`动图（QMovie）` （此小部件对应的 Qt 类称为 `QLabel`）
 
 **效果及代码：**
 
 ![image-20221203162325641](doc/pic/README/image-20221203162325641.png)
+
+
+
+
 
 ## 其他高级控件
 
@@ -1520,6 +1274,279 @@ ActiveX控件是一种可重用的二进制组件，用于在**Windows操作系�
 **效果及代码：**
 
 ![image-20221203171535255](doc/pic/README/image-20221203171535255.png)
+
+
+
+# 资源文件
+
+**Qt 资源系统是一个跨平台的资源机制，用于将程序运行时所需要的资源以二进制的形式存储于可执行文件内部。**如果你的程序需要加载特定的资源（图标、文本翻译等），那么，将其放置在资源文件中，就再也不需要担心这些文件的丢失。也就是说，如果你将资源以资源文件形式存储，它是会编译到可执行文件内部。
+
+使用 Qt Creator 可以很方便地创建资源文件。我们可以在工程上点右键，选择“添加新文件…”，可以在 Qt 分类下找到“Qt 资源文件”：
+
+
+
+1. 添加 Qt 资源文件，这个文件是用于管理我们资源文件的
+
+    <img src="doc/pic/README/image-20221018171522579.png" alt="image-20221018171522579" style="zoom:50%;" />
+
+2. 为 Qt 资源文件起一个名字
+
+    ![image-20221018171651888](doc/pic/README/image-20221018171651888.png)
+
+3. 以文本的形式打开刚刚创建的 `.qrc` 文件
+
+    <img src="doc/pic/README/image-20221018171743063.png" alt="image-20221018171743063" style="zoom: 67%;" />
+
+4. 将我们用到的资源（图片、视频等）放置在当前 Qt 工程的目录下
+
+5. 添加前缀并且添加资源文件
+
+    <img src="doc/pic/README/image-20221018172146656.png" alt="image-20221018172146656" style="zoom:50%;" />
+
+    
+
+    **我们给这个文件取一个“别名”，以后就以这个别名来引用这个文件。使用别名的好处是，如果更改了文件名，代码中使用别名的地方不需要修改。具体做法是，选中这个文件，添加别名信息：**
+
+    <img src="doc/pic/README/image-20221018172452507.png" alt="image-20221018172452507" style="zoom:50%;" />
+
+    
+
+    添加后的资源文件将出现在 Qt 资源文件之下:
+
+    ![image-20221018172310863](doc/pic/README/image-20221018172310863.png)
+
+    
+
+6. 使用资源文件
+
+    要符合格式 `:前缀名/文件名`，我们可以直接右键文件拷贝使用
+
+    <img src="doc/pic/README/image-20221018173232309.png" alt="image-20221018173232309" style="zoom:50%;" />
+
+运行起来有以下效果：
+
+![image-20221018173318599](doc/pic/README/image-20221018173318599.png)
+
+
+
+
+
+# 对话框 QDialog
+
+对话框是 GUI 程序中不可或缺的组成部分。很多不能或者不适合放入主窗口的功能组件都必须放在对话框中设置。**对话框通常会是一个顶层窗口，出现在程序最上层，用于实现短期任务或者简洁的用户交互。**
+
+Qt 中使用 QDialog 类实现对话框。就像主窗口一样，我们通常会设计一个类继承 QDialog。QDialog（及其子类，以及所有Qt::Dialog类型的类）的对于其 parent 指针都有额外的解释：**如果 parent 为 NULL，则该对话框会作为一个顶层窗口，否则则作为其父组件的子对话框（此时，其默认出现的位置是 parent 的中心）。顶层窗口与非顶层窗口的区别在于，顶层窗口在任务栏会有自己的位置，而非顶层窗口则会共享其父组件的位置。**
+
+**对话框分为==模态对话框==和==非模态对话框==。**
+
+
+
+==模态与非模态的实现：==
+
+- 使用`QDialog::exec()`实现**应用程序级别**的模态对话框
+
+- 使用`QDialog::open()`实现**窗口级别**的模态对话框
+
+- 使用`QDialog::show()`实现**非模态对话框**。
+
+
+
+- **模态对话框**，在==[栈]==上创建，对话框弹出之后会通过 `.exec()` 阻塞，**会阻塞同一应用程序中其它窗口的输入**。
+
+    模态对话框很常见，比如“打开文件”功能。你可以尝试一下记事本的打开文件，当打开文件对话框出现时，我们是不能对除此对话框之外的窗口部分进行操作的。
+
+    - **应用程序级别的模态**
+
+        当该种模态的对话框出现时，用户必须首先对对话框进行交互，直到关闭对话框，然后才能访问程序中其他的窗口
+
+        
+
+    - **窗口级别的模态**
+
+        该模态仅仅阻塞与对话框关联的窗口，但是依然允许用户与程序中其它窗口交互。窗口级别的模态尤其适用于**多窗口模式**
+
+        
+
+- 与此相反的是**非模态对话框**，在==[堆]==上创建，对话框通过 `.show()` 弹出，弹出后依旧可以操作其他窗口。
+
+    例如查找对话框，我们可以在显示着查找对话框的同时，继续对记事本的内容进行编辑。
+
+    > 如果对话框一闪而过：
+    >
+    > **show()函数不会阻塞当前线程，对话框会显示出来，然后函数立即返回，代码继续执行**。
+    >
+    > 所以注意，如果 dialog 是建立在栈上的，show()函数返回，MainWindow::open()函数结束，dialog 超出作用域被析构，因此对话框消失了。
+    >
+    > **所以非模态对话框要在[堆]上创建。**
+
+    **注意：非模态对话框一定要通过 `dialog_2->setAttribute(Qt::WA_DeleteOnClose);`设置 Dialog 对话框在关闭时自动销毁对话框，并释放内存！如果不设置只会在 MainWindow 退出时才释放，这可能造成内存泄漏** 
+
+    
+
+## 自定义对话框
+
+```c++
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    /* 我们使用 Lambda 表达式的形式弹出 Dialog对话框，并连接信号和槽 */
+    connect(ui->actionopenDialog, &QAction::triggered,
+            this, [=](){
+
+        /** Dialog 对话框有两种：
+         *  - 模态对话框：    在[堆]上创建，对话框弹出之后会通过 `.exec()` 阻塞，无法操作其他窗口
+         *  - 非模态对话框：  在[栈]上创建，对话框通过 `.show()` 弹出，弹出后依旧可以操作其他窗口
+         */
+
+#if 0
+        /* 模态对话框 */
+        QDialog dialog_1(this);
+        dialog_1.resize(80, 60);
+        dialog_1.exec();  // 阻塞
+#endif
+
+        /* 非模态对话框 */
+        QDialog* dialog_2 = new QDialog(this);  // 创建到堆上，不然 Lambda 表达式结束就会给释放了（窗口一闪而过）
+        dialog_2->resize(100, 80);
+        dialog_2->setAttribute(Qt::WA_DeleteOnClose);  // 【重点】设置 Dialog 对话框在关闭时释放内存！如果不设置只会在 MainWindow 退出时才释放，这可能造成内存泄漏
+        dialog_2->show();
+
+
+        qDebug() << "Lambda 表达式内部";
+
+    }); // END_LAMBDA
+}
+```
+
+
+
+## 消息对话框 QMessageBox
+
+QMessageBox用于显示消息提示。我们一般会使用其提供的几个 static 函数：
+
+| 名称                                                         | 介绍           |                                                              |
+| ------------------------------------------------------------ | -------------- | ------------------------------------------------------------ |
+| QMessageBox::`critical`(this, "[Title]错误！", "[Text]critical"); | 错误对话框     | ![image-20221128225354793](doc/pic/README/image-20221128225354793.png) |
+| QMessageBox::`warning`(this, "[Title]警告！", "[Text]warning"); | 警告对话框     | ![image-20221128225405311](doc/pic/README/image-20221128225405311.png) |
+| QMessageBox::`information`(this, "[Title]信息！", "[Text]information"); | 信息对话框     | ![image-20221128225428076](doc/pic/README/image-20221128225428076.png) |
+| QMessageBox::`about`(this, "about 函数", "text部分");        | 会弹出一段文字 | ![image-20221128225157690](doc/pic/README/image-20221128225157690.png) |
+| **QMessageBox::`question`(this, "标题", "提示内容", QMessageBox::Save \| QMessageBox::Cancel, QMessageBox::Cancel)** | **询问对话框** | **参数为：**1. 父亲，2. 标题，3.提示内容， 4. 按键类型， 5. 关联回车按键（默认按哪个）<br />![image-20221128225434576](doc/pic/README/image-20221128225434576.png)<br />**返回**点击的按钮类型 |
+
+示例代码：
+
+```c++
+    /* 标准对话框 QMessageBox 介绍（Static 成员）：*/
+    connect(ui->actionQMessageBox, &QAction::triggered,
+            this, [=](){
+        QMessageBox::about(this, "static QMessageBox::about 函数", "text部分"); // 会弹出一段文字
+        QMessageBox::aboutQt(this, "title部分");  // 会弹出 Qt 的声明
+
+        QMessageBox::critical(this, "[Title]错误！", "[Text]critical");        // 错误对话框
+        QMessageBox::warning(this, "[Title]警告！", "[Text]warning");          // 警告对话框
+        QMessageBox::information(this, "[Title]信息！", "[Text]information");  // 信息对话框
+
+        /* 询问对话框
+         * 参数：1. 父亲，2. 标题，3.提示内容， 4. 按键类型， 5. 关联回车按键（默认按哪个）
+         */
+        if (QMessageBox::Save ==
+                QMessageBox::question(this, "问题", "question", QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Cancel))
+        {
+            qDebug() << "按键是 QMessageBox::Save";
+        }
+        else
+        {
+            qDebug() << "按键类型是 QMessageBox::Cancel";
+        }
+
+
+    }); // END_LAMBDA
+```
+
+QMessageBox类的 static 函数优点是方便使用，缺点也很明显：非常不灵活。我们只能使用简单的几种形式。为了能够定制QMessageBox细节，我们必须使用QMessageBox的属性设置 API。如果我们希望制作一个询问是否保存的对话框，我们可以使用如下的代码：
+
+```c++
+QMessageBox msgBox;
+msgBox.setText(tr("The document has been modified."));
+msgBox.setInformativeText(tr("Do you want to save your changes?"));
+msgBox.setDetailedText(tr("Differences here..."));
+msgBox.setStandardButtons(QMessageBox::Save
+                          | QMessageBox::Discard
+                          | QMessageBox::Cancel);
+msgBox.setDefaultButton(QMessageBox::Save);
+int ret = msgBox.exec();
+switch (ret) 
+{
+case QMessageBox::Save:
+    qDebug() << "Save document!";
+    break;
+case QMessageBox::Discard:
+    qDebug() << "Discard changes!";
+    break;
+case QMessageBox::Cancel:
+    qDebug() << "Close document!";
+    break;
+}
+
+```
+
+msgBox 是一个建立在栈上的QMessageBox实例。我们设置其
+
+- 主要文本信息为“The document has been modified.”，
+- informativeText 则是会在对话框中显示的简单说明文字。
+- 下面我们使用了一个detailedText，也就是详细信息，当我们点击了详细信息按钮时，对话框可以自动显示更多信息。
+- 我们自己定义的对话框的按钮有三个：保存、丢弃和取消。
+- 然后我们使用了exec()是其成为一个模态对话框，根据其返回值进行相应的操作。
+
+
+
+## 颜色对话框
+
+- 包含头文件 `#include <QColorDialog>`
+
+`QColor color = QColorDialog::getColor(QColor(0, 255, 255));`，调用系统对话框，获取颜色值
+
+- 参数 1：默认选择的颜色值 (r, g, b)
+- 返回一个 `QColor` 颜色值
+
+
+
+**示例代码：**
+
+![image-20221130145334893](doc/pic/README/image-20221130145334893.png)
+
+
+
+## 文件对话框
+
+Qt 的标准对话框提供静态函数，用于返回一个模态对话框，包含头文件 `#include <QFileDialog>`
+
+```c++
+QString getOpenFileName(QWidget * parent = 0,									// 父窗口
+                        const QString & caption = QString(),	// 对话框标题
+                        const QString & dir = QString(),			// 对话框打开时的默认目录, “.” 代表程序运行目录
+                        const QString & filter = QString(),		// 过滤器, 过滤器就是用于过滤特定的后缀名。如果我们使用“Image Files(*.jpg *.png)”，则只能显示后缀名是 jpg 或者 png 的文件。如果需要多个过滤器，使用“;;”分割，比如“JPEG Files(*.jpg);;PNG Files(*.png)”；
+                        QString * selectedFilter = 0,					// 默认选择的过滤器；
+                        Options options = 0)	// 对话框的一些参数设定。比如只显示文件夹等等，它的取值是enum QFileDialog::Option，每个选项可以使用 | 运算组合起来。
+```
+
+**QFileDialog::getOpenFileName()返回值是选择的文件路径。**我们将其赋值给 path。通过判断 path 是否为空，可以确定用户是否选择了某一文件。只有当用户选择了一个文件时，我们才执行下面的操作。
+
+在saveFile()中使用的QFileDialog::getSaveFileName()也是类似的。使用这种静态函数，在 Windows、Mac OS 上面都是直接调用本地对话框，但是 Linux 上则是QFileDialog自己的模拟。这暗示了，如果你不使用这些静态函数，而是直接使用QFileDialog进行设置，那么得到的对话框很可能与系统对话框的外观不一致。这一点是需要注意的。
+
+
+
+**示例代码：**
+
+```c++
+connect(ui->actionOpenFile, &QAction::triggered,
+        this, [=](){
+          QString path = QFileDialog::getOpenFileName(this, "打开文件狐", "/Users/fox/雪狸的文件", "(*.png *.jpg)");
+          qDebug() << "选择的文件路径为：" << path;
+        });
+```
 
 
 
