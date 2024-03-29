@@ -614,6 +614,12 @@ this->setCentralWidget(textEdit);  // 【重点】将 TextEdit 设置为核心�
 
 ![image-20240325003522709](doc/img/image-20240325003522709.png)
 
+- 可以拖动某一个控件到设计器中
+
+- 右键已经使用的控件可以将其更改为同类型的其他控件
+
+    ![image-20240329152148484](doc/img/image-20240329152148484.png)
+
 ## Layouts & Spacers
 
 > 窗口布局 Layouts & Spacers
@@ -1123,7 +1129,158 @@ Stacked Widget - 类似于 Qt 左侧的切换窗，**每点击一个标签，其
 
 ![image-20221203162325641](doc/pic/README/image-20221203162325641.png)
 
+### Text Browser
 
+![image-20240329150735713](doc/img/image-20240329150735713.png)
+
+**文本浏览器**：与文本编辑小部件几乎相同，但增加了在链接之间导航的功能。可以想想该部件为 QQ 的聊天窗口（此小部件对应的 Qt 类称为 `QTextBrowser`）。
+
+右键控件可以将其更改为其他类型的控件，比如允许编辑的 `TextEdit`（类似于聊天窗口的输入框）。
+
+![image-20240329152032547](doc/img/image-20240329152032547.png)
+
+使用实例：[使用控件更改文本框中的字体样式](https://github.com/NekoSilverFox/PolyChat/blob/main/App/uil_chatboxwidget.cpp#L60)
+
+![image-20240329151740284](doc/img/image-20240329151740284.png)
+
+```cpp
+ /* 字体 */
+  connect(ui->cbxFontType, &QFontComboBox::currentFontChanged,
+          this, [=](const QFont& font){
+                      ui->msgTextEdit->setCurrentFont(font);
+                      ui->msgTextEdit->setFocus();
+  });
+
+  /* 字号 */
+  void(QComboBox::* cbxSingal)(const QString &text) = &QComboBox::currentTextChanged;
+  connect(ui->cbxFontSize, cbxSingal,
+          this, [=](const QString &text){
+                      ui->msgTextEdit->setFontPointSize(text.toDouble());
+                      ui->msgTextEdit->setFocus();
+  });
+
+  /* 加粗 */
+  connect(ui->btnBold, &QToolButton::clicked,
+          this, [=](bool isCheck){
+                      if (isCheck) ui->msgTextEdit->setFontWeight(QFont::Bold);
+                      else ui->msgTextEdit->setFontWeight(QFont::Normal);
+  });
+
+  /* 倾斜 */
+  connect(ui->btnItalic, &QToolButton::clicked,
+          this, [=](bool isCheck){ ui->msgTextEdit->setFontItalic(isCheck);
+  });
+
+
+  /* 下划线 */
+  connect(ui->btnUnderLine, &QToolButton::clicked,
+          this, [=](bool isCheck){ ui->msgTextEdit->setFontUnderline(isCheck);
+  });
+
+  /* 更改颜色 */
+  connect(ui->btnColor, &QToolButton::clicked,
+          this, [=](){
+                      QColor color = QColorDialog::getColor(Qt::black);
+                      ui->msgTextEdit->setTextColor(color);
+  });
+
+  /* 清空聊天 */
+  connect(ui->btnClean, &QToolButton::clicked,
+          this, [=](){
+
+      if (QMessageBox::Ok ==
+              QMessageBox::question(this,
+                                    "Clean all message",
+                                    "Are you sure you want to clear all messages?",
+                                    QMessageBox::Ok | QMessageBox::Cancel,
+                                    QMessageBox::Cancel))
+      {
+          ui->msgTextBrowser->clear();
+      }});
+
+  /* 保存聊天记录 */
+  connect(ui->btnSave, &QToolButton::clicked,
+          this, [=](){
+      if (ui->msgTextBrowser->document()->isEmpty())
+      {
+          QMessageBox::warning(this, "Warning", "Can not save!\nMessage box is empty");
+          return;
+      }
+
+      QString path = QFileDialog::getSaveFileName(this, "Save file", "PolyChat-MsgLog", "(*.txt)");
+      if (path.isEmpty())
+      {
+          QMessageBox::warning(this, "Warning", "Save cancel");
+          return;
+      }
+
+      QFile file(path);
+      file.open(QIODevice::WriteOnly | QIODevice::Text);  // 支持换行
+      QTextStream textStream(&file);
+      textStream << ui->msgTextBrowser->toPlainText();
+      file.close();
+  });
+```
+
+### Graphics View
+
+![image-20240329153805644](doc/img/image-20240329153805644.png)
+
+**图形视图**：可用于显示图形场景的内容（此小部件对应的 Qt 类称为 `QGraphicsView`）。
+
+我们在书《Computer Vision with OpenCV 3 and Qt5》中将会使用到的最重要的小部件可能是图形场景（或 `QGraphicsScene`），并且将在[第5章](#23154d9b-43b1-411a-874a-d82e2a904927.xhtml)，*图形视图框架*中进行介绍。
+
+
+
+### Calendar Widget
+
+![image-20240329154136420](doc/img/image-20240329154136420.png)
+
+**日历小部件**：可用于从月历中查看和选择日期（此小部件对应的 Qt 类称为 `QCalendarWidget`）。
+
+
+
+### LCD Number
+
+![image-20240329154244880](doc/img/image-20240329154244880.png)
+
+**LCD数字**：可用于在类似LCD的显示屏上显示数字（此小部件对应的 Qt 类称为 `QLCDNumber`）。
+
+
+
+### Progress Bar
+
+![image-20240329154450058](doc/img/image-20240329154450058.png)
+
+**进度条**：可用于显示垂直或水平的进度指示器（此小部件对应的 Qt 类称为 `QProgressBar`）。
+
+
+
+### Horizontal/Vertical Line
+
+**水平/垂直线**：可用于绘制简单的垂直或水平线。特别适用于不同小部件组之间的分隔线。
+
+![image-20240329154656762](doc/img/image-20240329154656762.png)
+
+### OpenGL Widget
+
+![image-20240329154757499](doc/img/image-20240329154757499.png)
+
+> 请注意，OpenGL是计算机图形学中一个完全独立和高级的主题，完全超出了本书的范围；然而，如前所述，了解Qt中存在的工具和小部件对于可能的进一步学习是一个好主意。
+>
+> OpenGL 教程可以参考这里：https://github.com/NekoSilverFox/opengl
+
+**OpenGL小部件**：此类可用作渲染OpenGL输出的表面（此小部件对应的 Qt 类称为 `QOpenGLWidget`）。
+
+
+
+### QQuickWidget
+
+![image-20240329154940810](doc/img/image-20240329154940810.png)
+
+**QQuickWidget**：此小部件可用于显示Qt Quick用户界面。Qt Quick界面使用QML语言来设计用户界面（此小部件对应的 Qt 类称为 `QQuickWidget`）。
+
+之后的章节，Qt Quick应用程序中将介绍QML。现在，让我们确保我们的用户界面中不添加任何QQuickWidget小部件，因为我们需要向项目中添加额外的模块才能使其工作
 
 
 
