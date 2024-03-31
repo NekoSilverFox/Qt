@@ -152,7 +152,64 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 # 信号和槽
 
-> **信号和槽是 Qt 中最重要的机制**
+> **信号和槽是 Qt 中最最最最最最重要的机制**
+
+## 通过图形界面创建信号和槽连接（自动连接机制）
+
+> 不推荐使用这种方式创建新号和槽连接！！
+
+1. 我们可以通过在 Ui Designer 中选中控件，然后点击右键，选择 `Go to slot` 
+
+    ![image-20240401003902104](doc/img/image-20240401003902104.png)
+
+2. 然后选择对应的信号和槽
+
+    ![image-20240401004435488](doc/img/image-20240401004435488.png)
+
+3. Qt 会自动生成 `on_<objectName>_<signalName>`形式命名的槽函数。比如对于按钮 `btnInput` 发出的 `clicked` 信号，自动创建的槽函数为：
+
+    ```cpp
+    // 这里当我们点击 btnInput 按钮的时候，将用户选择的文件名写入到 LineEdit 中
+    void Hello_Qt_OpenCV::on_btnInput_clicked()
+    {
+        QString fileName = QFileDialog::getOpenFileName(this, "Open Input Image", QDir::currentPath(), "Images (*.jpg *.png *.bmp)");
+    
+        if (QFile::exists(fileName))
+        {
+            ui->leInput->setText(fileName);
+        }
+    }
+    ```
+
+
+
+但是注意，这种创建方式是不推荐的，因为这是使用 **Qt 的==自动连接机制==**：
+
+在Qt中，存在一种自动连接信号和槽的机制，这是通过QObject的`QMetaObject::connectSlotsByName()`函数实现的。当一个QWidget（包括其子类）对象被创建时，Qt会自动查找该对象中==**所有**==的槽函数，**如果槽函数的命名遵循`on_<objectName>_<signalName>`的模式，Qt将==自动==将这些槽连接到名称为`<objectName>`的对象发出的名为`<signalName>`的信号（也就是不通过写 `connect` 他就自动连接上了）。**
+
+
+
+**为什么是错误倾向的？**
+
+虽然这个特性可以简化某些情况下的信号与槽的连接过程，减少编码工作量，但它也带来了一些潜在的问题，这就是为什么Clazy（一个静态代码分析器）会发出警告：
+
+1. **隐式行为可能导致错误**：自动连接是一个**隐式过程**，开发者可能不清楚某个槽函数是否被自动连接，或者错误地认为某个槽函数会被自动连接。这可能导致调试困难，因为行为的预期与实际可能不符。
+2. **重构风险**：**如果对象名称或信号名称在未来发生变化，与之相关的自动连接也会受到影响**，可能会导致槽不再被正确连接，而编译器不会报错，因为这些连接是在运行时解析的。
+3. **代码可读性降低**：对于不熟悉Qt自动连接机制的开发者来说，可能会对这种隐式的连接方式感到困惑，这影响了代码的清晰度和可维护性。
+
+
+
+**解决方案：** 
+
+为了避免这些问题，Clazy推荐避免使用自动连接的命名约定，而是显式地连接信号和槽。使用Qt 5引入的新信号槽语法（基于函数指针的连接），可以提高类型安全性，并在编译时就发现潜在的问题：
+
+```cpp
+connect(sender, &SenderClass::signalName, receiver, &ReceiverClass::slotFunction);
+```
+
+这种方式不仅避免了隐式连接可能引入的问题，还提高了代码的可读性和健壮性，使得信号和槽之间的关系在代码中更加明确。
+
+
 
 ## connect
 
@@ -193,7 +250,6 @@ public:
   
 /* 信号 */
 signals:
-  
   void funcSignal(QString arg);
 
 /* 槽 */
@@ -1595,34 +1651,36 @@ QMessageBox用于显示消息提示。我们一般会使用其提供的几个 st
 示例代码：
 
 ```c++
-    /* 标准对话框 QMessageBox 介绍（Static 成员）：*/
-    connect(ui->actionQMessageBox, &QAction::triggered,
-            this, [=](){
-        QMessageBox::about(this, "static QMessageBox::about 函数", "text部分"); // 会弹出一段文字
-        QMessageBox::aboutQt(this, "title部分");  // 会弹出 Qt 的声明
+/* 标准对话框 QMessageBox 介绍（Static 成员）：*/
+connect(ui->actionQMessageBox, &QAction::triggered,
+        this, [=](){
+    QMessageBox::about(this, "static QMessageBox::about 函数", "text部分"); // 会弹出一段文字
+    QMessageBox::aboutQt(this, "title部分");  // 会弹出 Qt 的声明
 
-        QMessageBox::critical(this, "[Title]错误！", "[Text]critical");        // 错误对话框
-        QMessageBox::warning(this, "[Title]警告！", "[Text]warning");          // 警告对话框
-        QMessageBox::information(this, "[Title]信息！", "[Text]information");  // 信息对话框
+    QMessageBox::critical(this, "[Title]错误！", "[Text]critical");        // 错误对话框
+    QMessageBox::warning(this, "[Title]警告！", "[Text]warning");          // 警告对话框
+    QMessageBox::information(this, "[Title]信息！", "[Text]information");  // 信息对话框
 
-        /* 询问对话框
-         * 参数：1. 父亲，2. 标题，3.提示内容， 4. 按键类型， 5. 关联回车按键（默认按哪个）
-         */
-        if (QMessageBox::Save ==
-                QMessageBox::question(this, "问题", "question", QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Cancel))
-        {
-            qDebug() << "按键是 QMessageBox::Save";
-        }
-        else
-        {
-            qDebug() << "按键类型是 QMessageBox::Cancel";
-        }
+    /* 询问对话框
+     * 参数：1. 父亲，2. 标题，3.提示内容， 4. 按键类型， 5. 关联回车按键（默认按哪个）
+     */
+    if (QMessageBox::Save ==
+            QMessageBox::question(this, "问题", "question", QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Cancel))
+    {
+        qDebug() << "按键是 QMessageBox::Save";
+    }
+    else
+    {
+        qDebug() << "按键类型是 QMessageBox::Cancel";
+    }
 
 
-    }); // END_LAMBDA
+}); // END_LAMBDA
 ```
 
-QMessageBox类的 static 函数优点是方便使用，缺点也很明显：非常不灵活。我们只能使用简单的几种形式。为了能够定制QMessageBox细节，我们必须使用QMessageBox的属性设置 API。如果我们希望制作一个询问是否保存的对话框，我们可以使用如下的代码：
+Q
+
+MessageBox类的 static 函数优点是方便使用，缺点也很明显：非常不灵活。我们只能使用简单的几种形式。为了能够定制QMessageBox细节，我们必须使用QMessageBox的属性设置 API。如果我们希望制作一个询问是否保存的对话框，我们可以使用如下的代码：
 
 ```c++
 QMessageBox msgBox;
@@ -1678,32 +1736,46 @@ msgBox 是一个建立在栈上的QMessageBox实例。我们设置其
 
 ## 文件对话框
 
-Qt 的标准对话框提供静态函数，用于返回一个模态对话框，包含头文件 `#include <QFileDialog>`
+> **可以通过 [QDir类中的方法](https://doc.qt.io/qt-6/qdir.html) 来获取/设置相关文件路径**，此类可用于访问计算机上的文件夹并获取有关它们的各种信息。
+
+Qt 的标准对话框提供静态函数，用于返回一个模态对话框，包含头文件 `#include <QFileDialog>`。它使用底层操作系统 API，因此对话框的外观可能有所不同，具体取决于操作系统。
 
 ```c++
-QString getOpenFileName(QWidget * parent = 0,									// 父窗口
-                        const QString & caption = QString(),	// 对话框标题
-                        const QString & dir = QString(),			// 对话框打开时的默认目录, “.” 代表程序运行目录
-                        const QString & filter = QString(),		// 过滤器, 过滤器就是用于过滤特定的后缀名。如果我们使用“Image Files(*.jpg *.png)”，则只能显示后缀名是 jpg 或者 png 的文件。如果需要多个过滤器，使用“;;”分割，比如“JPEG Files(*.jpg);;PNG Files(*.png)”；
-                        QString * selectedFilter = 0,					// 默认选择的过滤器；
+QString getOpenFileName(
+  QWidget * parent = 0,									// 父窗口
+  const QString & caption = QString(),	// 对话框标题
+  onst QString & dir = QString(),			// 对话框打开时的默认目录, “.” 或 `QDir::currentPath()` 代表程序当前运行目录
+  const QString & filter = QString(),		// 过滤器, 过滤器就是用于过滤特定的后缀名。如果我们使用“Image Files(*.jpg *.png)”，则只能显示后缀名是 jpg 或者 png 的文件。如果需要多个过滤器，使用“;;”分割，比如“JPEG Files(*.jpg);;PNG Files(*.png)”；
+  QString * selectedFilter = 0,					// 默认选择的过滤器；
                         Options options = 0)	// 对话框的一些参数设定。比如只显示文件夹等等，它的取值是enum QFileDialog::Option，每个选项可以使用 | 运算组合起来。
 ```
 
-**QFileDialog::getOpenFileName()返回值是选择的文件路径。**我们将其赋值给 path。通过判断 path 是否为空，可以确定用户是否选择了某一文件。只有当用户选择了一个文件时，我们才执行下面的操作。
-
-在saveFile()中使用的QFileDialog::getSaveFileName()也是类似的。使用这种静态函数，在 Windows、Mac OS 上面都是直接调用本地对话框，但是 Linux 上则是QFileDialog自己的模拟。这暗示了，如果你不使用这些静态函数，而是直接使用QFileDialog进行设置，那么得到的对话框很可能与系统对话框的外观不一致。这一点是需要注意的。
-
-
+- 对于第三个参数“默认路径”，我们可以**通过 `QDir::currentPath()` 来获取当前目录的绝对路径**。当前目录是使用 `QDir::setCurrent()` 设置的最后一个目录，如果从未调用过，则是父进程启动此应用程序时的目录。
+- `QFileDialog::getOpenFileName()`返回值是选择的==文件路径==。**我们将其赋值给 `QString path`。然后通过使用 `QFile::exists(path)` 判断 `path` 是否为空，可以确定用户是否选择了某一文件；如果用户没有选择文件的话路径将会是 `QFile::exists(path)` 将会是 `false`**。只有当用户选择了一个文件时，我们才执行下面的操作。
 
 **示例代码：**
 
 ```c++
+QString path;
+
 connect(ui->actionOpenFile, &QAction::triggered,
         this, [=](){
-          QString path = QFileDialog::getOpenFileName(this, "打开文件狐", "/Users/fox/雪狸的文件", "(*.png *.jpg)");
-          qDebug() << "选择的文件路径为：" << path;
+          path = QFileDialog::getOpenFileName(this, "打开文件狐", QDir::currentPath(), "(*.png *.jpg)");  // 注意：不使用`,`分隔，而是使用空格！！
         });
+
+// 一定记得判断下目录是否为空
+if(QFile::exists(path)) // 如果存在该文件（也就是path不为空）
+{ 
+ 	qDebug() << "选择的文件路径为：" << path;
+} 
+else
+{
+  qDebug() << "未选择文件";
+}
+
 ```
+
+使用这种静态函数，在 Windows、Mac OS 上面都是直接调用本地对话框，但是 Linux 上则是QFileDialog自己的模拟。这暗示了，如果你不使用这些静态函数，而是直接使用QFileDialog进行设置，那么得到的对话框很可能与系统对话框的外观不一致。这一点是需要注意的。
 
 
 
@@ -1712,6 +1784,32 @@ connect(ui->actionOpenFile, &QAction::triggered,
 - 所有的控件都会继承 `QWidget` 中的事件
 - **所有的事件（Event）都有自己的参数，一定要把参数补全！！！具体参数看 Qt 帮助文档**
 - **所有的事件都派生于 `QEvent` 类**
+
+## 窗口关闭
+
+对于 Qt 中窗口关闭事件：我们的窗口所基于的类是`QWidget`，它具有一个**虚函数 `void closeEvent(QCloseEvent *event);`**，我们可以覆盖和使用它。主窗口应用程序通常使用该函数的重新实现来检查用户的工作是否已保存，并在关闭前征求用户许可。
+
+只需将以下代码行添加到自己的`MainWindow`类中：
+
+```cpp
+#include <QCloseEvent>  // 如果报错 `Member access into incomplete type 'QCloseEvent'` 可以添加头文件来解决
+
+...
+
+protected:
+	virtual void closeEvent(QCloseEvent* event); 
+```
+
+
+
+示例：比如我们想实现在用户关闭窗口时提示他们，然后根据用户选择关闭：
+
+```cpp
+```
+
+
+
+
 
 ## 鼠标事件
 
@@ -1777,7 +1875,7 @@ connect(ui->actionOpenFile, &QAction::triggered,
 ```c++
 /* 定时器第二种方式（推荐） */
 QTimer* timer3 = new QTimer(this);
-timer3->start(500);  // 启动定时器
+timer3->start(500);  // 启动定时器，参数为毫秒 ms
 connect(timer3, &QTimer::timeout,
         this, [=](){
             static int num3 = 0;
@@ -1921,6 +2019,30 @@ void Widget::paintEvent(QPaintEvent *)
 
 
 # 文件读写
+
+#TODO
+
+
+
+# 测试
+
+## 静态测试
+
+可以使用 Qt Creater 自带的 Clazy 对代码进行静态测试/分析。Clazy 是一个基于Clang的静态分析工具，专为Qt代码提供优化和警告。**它能够帮助开发者识别Qt特有的编程错误和性能瓶颈。**
+
+
+
+1. 配置 Clazy
+
+    ![image-20240401001433537](doc/img/image-20240401001433537.png)
+
+2. 可以看到，在编写代码的时候自动对有异常的代码代码进行了警告
+
+    ![image-20240401001602055](doc/img/image-20240401001602055.png)
+
+3. 手动执行静态测试：可以点击菜单栏中的 `分析`进行手动执行
+
+    ![image-20240401001808089](doc/img/image-20240401001808089.png)
 
 
 
@@ -2232,4 +2354,6 @@ https://doc.qt.io/qt-6/qsignalspy.html
 > https://stackoverflow.com/questions/41075387/add-a-unit-test-project-to-an-existing-qt-creator-project
 >
 > 工程结构示例：https://github.com/bruceoutdoors/DrawingApp
+
+
 
