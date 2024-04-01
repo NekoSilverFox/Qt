@@ -1779,6 +1779,172 @@ else
 
 
 
+# 实用开发功能
+
+## 保存程序设置
+
+> https://doc.qt.io/qt-6/qsettings.html
+
+`QSettings` 是一个 Qt 模块，用于在应用程序中**保存和恢复设置**。这使得开发人员可以轻松地存储用户偏好、应用程序配置等，无论是在 Windows 注册表中、macOS 的 plist 文件中，还是在 Unix/Linux 系统的 INI 文件中。**`QSettings`的接口独立于后端存储机制，提供了一种统一的方式来处理设置。**
+
+使用`QSettings`，你可以进行如下操作：
+
+- **读取设置**：通过指定键来获取之前存储的值。
+- **写入设置**：为指定的键设置值。
+- **删除设置**：删除某个键及其对应的值。
+
+
+
+**具体存储方式：**
+
+`QSettings` 使用了键值对（Key-Value Pairs）的方式进行存储，其中 Key 对应我们想存储的**对象名称**，Value 对应了存储对象的值。使用时我们需要初始化一个 `QSettings` 对象，然后根据**对象名**保存或者加载设置。
+
+**节和键的语法**：
+
+设置键可以包含任何 Unicode 字符。Windows 注册表和 `INI` 文件使用不区分大小写的键，而 macOS 和 iOS 上的 `CFPreferences API` 使用区分大小写的键。**为了避免可移植性问题，请遵循以下简单规则：**
+
+- **总是使用相同的大小写来引用同一个键**。例如，如果在代码的一个地方你将某个键称为 `text fonts`，在其他地方就不要将它称为 `Text Fonts`。 
+- **避免除大小写外名称相同的键名**。例如，如果你有一个名为 `MainWindow` 的键，就不要尝试保存另一个名为 `mainwindow` 的键。
+- **不要在节或键的名称中使用斜杠**（`/` 和 `\`）；**因为反斜杠是用于分隔子键的**（见下文）。在 Windows 上，`\` 会被 `QSettings` 转换为 `/`，这使它们变得相同。 **你可以使用 `/` 字符作为分隔符来形成层次结构的键，类似于 Unix 文件路径**。例如：
+
+```cpp
+settings.setValue("mainwindow/size", win->size());
+settings.setValue("mainwindow/fullScreen", win->isFullScreen());
+settings.setValue("childwindow/visible", child->isVisible());
+```
+
+如果你想要保存或恢复许多具有相同前缀的设置，你可以使用 `beginGroup()` 指定前缀，并在结束时调用 `endGroup()`。这里是相同的例子，但这次使用了组机制：
+
+```cpp
+settings.beginGroup("mainwindow");
+settings.setValue("size", win->size());  // 对应了 "mainwindow/size"
+settings.setValue("fullScreen", win->isFullScreen());  // 对应了 "mainwindow/fullScreen"
+settings.endGroup();
+
+settings.beginGroup("childwindow");
+settings.setValue("visible", panel->isVisible());  // 对应了 "childwindow/visible"
+settings.endGroup();
+```
+
+如果使用 `beginGroup()` 设置了一个组，则大多数函数的行为随之改变。可以递归地设置组。
+
+除了组，`QSettings` 还支持“数组”概念。详见 `beginReadArray()` 和 `beginWriteArray()`。比如存储多个用户（class Login）的信息。
+
+---
+
+普通用法的具体流程如下：
+
+1. **初始化一个 `QSettings` 对象**
+
+    - 对于单个 `QSettings`（简单的单窗口应用程序）
+
+        ```cpp
+        // 创建QSettings对象，指定组织和应用名称
+        QSettings settings("MyOrganization", "MyApp");
+        ```
+
+    - 如果您在应用程序中的许多地方（多个窗口）使用 `QSettings`，您可能需要使用 `QCoreApplication::setOrganizationName()` 和 `QCoreApplication::setApplicationName()` 指定组织名称和应用程序名称，**然后使用默认的 QSettings 构造函数**：
+
+        ```cpp
+        QCoreApplication::setOrganizationName("MySoft");  // 组织名
+        QCoreApplication::setOrganizationDomain("mysoft.com");  // 组织的 Internet 域名
+        QCoreApplication::setApplicationName("Star Runner");  // 程序名
+        	...
+        QSettings settings;
+        ```
+
+        这里，我们还指定了组织的 Internet 域名。**设置 Internet 域名后，macOS 和 iOS 将使用该域名代替组织名称，因为 macOS 和 iOS 应用程序通常使用 Internet 域名来标识自己。**如果没有设置域，则会从组织名称导出一个假域。详情请参阅下面的[特定平台注释](https://doc.qt.io/qt-6/qsettings.html#platform-specific-notes)（Platform-Specific Notes)
+
+        
+
+2. **写入设置：使用 `void setValue(QAnyStringView key, const QVariant &value)` 为指定的键设置值**。注意：第一个参数是==字符串形式的对象“名”（也可以是其他随便起的名字）==，而不是对象，第二个参数是对象的值
+
+    ```cpp
+    // 写入设置
+    settings.setValue("mySetting", 42);  // 这里不一定存储小控件的值，也可以存其他任何自定义变量
+    ```
+
+    
+
+3. **读取设置：使用 `QVariant value(QAnyStringView key, const QVariant &defaultValue) const` 读取值。第一个参数是==字符串形式的对象“名”==，而不是对象，第二个参数是如果找不到键，返回的默认值**
+
+    ```cpp
+    // 读取设置
+    int mySetting = settings.value("mySetting", 0).toInt(); // 如果找不到键，返回默认值0
+    qDebug() << "Setting value:" << mySetting;
+    ```
+
+    
+
+---
+
+**==注意==：**如果在**一个**应用程序中，有**两个**窗口，比如：`MainWindow` 和 `ChildWindow` 如果在两个窗口的退出事件中都创建了一个`QSettings`，并且`QSettings` 对象在创建时指定了一个唯一的组合（通常是相同的组织名称和应用程序名称），比如：
+
+```cpp
+在 MyApp 的窗口 MainWindow 中：
+	QSettings settings_1("Fox", "MyApp");
+
+在 MyApp 的窗口 ChildWindow 中：
+	QSettings settings_2("Fox", "MyApp");
+```
+
+虽然是两个不同窗口创建的，但**由于创建的 `QSettings` 对象使用的是相同的组织名称、应用程序名称、范围和格式，那么它们实际上是在操作==同一个==配置存储**。所以**可能遇到同名的配置被覆盖问题**，写入设置时，它们是否会相互覆盖取决于以下因素：
+
+1. **相同的键**：如果两个窗口写入相同的键，那么最后写入的值将覆盖之前的值。因为 `QSettings` 是以键值对的形式存储数据的，所以同一个键在任何时刻只能有一个值。
+2. **不同的键**：如果两个窗口操作不同的键，那么它们的设置就不会相互干扰，每个键的值都会独立保存。
+3. **写入时间**：如果两个窗口几乎同时写入设置，最终存储的结果将取决于操作系统对文件写入操作的处理方式和 `QSettings` 内部的写入策略（如是否使用延迟写入、缓存等）。通常，后一个写入操作会覆盖先前的操作。
+
+为了避免潜在的覆盖问题，你可以采取以下策略：
+
+- **【推荐】使用唯一键**：确保不同窗口写入的设置使用不同的键，或者通过一些逻辑确保键的唯一性，例如在键名中包含窗口名称（比如不要简单的写`btnInput`，可以写成 `mainwindow/btnInput`）。
+- **集中管理设置**：考虑将应用程序的设置管理集中化，比如在主窗口中处理所有的 `QSettings` 写入操作，而子窗口通过信号和槽（或其他机制）通知主窗口进行设置的更改。这种方式可以更好地控制设置的写入时机和逻辑。
+- **明确写入时机**：仔细考虑何时写入设置。例如，你可能决定只在应用程序关闭时写入所有更改的设置，而不是在每个窗口关闭时都写入。这样可以减少写入操作的频率，降低设置被覆盖的风险。
+
+
+
+---
+
+示例：比如对于以下[项目](https://github.com/NekoSilverFox/OpenCV/tree/main/02_Hello_Qt_OpenCV)，我们可以**在用户退出/打开的时候保存/加载窗口状态**
+
+![image-20240401230524193](doc/img/image-20240401230524193.png)
+
+```cpp
+/** 保存用户设置
+ * @brief Hello_Qt_OpenCV::saveSettings
+ */
+void Hello_Qt_OpenCV::saveSettings()
+{
+    QSettings settings("Packt", "Hello_OpenCV_Qt", this);
+
+    settings.setValue("leInput", ui->leInput->text());
+    settings.setValue("Fox/leOutput", ui->leOutput->text());
+    settings.setValue("rbtnMedianBlur", ui->rbtnMedianBlur->isChecked());
+    settings.setValue("rbtnGaussianBlur", ui->rbtnGaussianBlur->isChecked());
+    settings.setValue("cbDisplayAfterSave", ui->cbDisplayAfterSave->isChecked());
+}
+
+/** 加载用户设置
+ * @brief Hello_Qt_OpenCV::loadSettings
+ */
+void Hello_Qt_OpenCV::loadSettings()
+{
+    QSettings settings("Packt", "Hello_OpenCV_Qt", this);
+    ui->leInput->setText(settings.value("leInput", "").toString());
+    ui->leOutput->setText(settings.value("Fox/leOutput", "").toString());
+    ui->rbtnMedianBlur->setChecked(settings.value("rbtnMedianBlur", true).toBool());
+    ui->rbtnGaussianBlur->setChecked(settings.value("rbtnGaussianBlur", false).toBool());
+    ui->cbDisplayAfterSave->setChecked(settings.value("cbDisplayAfterSave", false).toBool());
+}
+```
+
+
+
+
+
+
+
+
+
 # 事件
 
 - 所有的控件都会继承 `QWidget` 中的事件
@@ -2040,7 +2206,7 @@ void Widget::paintEvent(QPaintEvent *)
 
     ![image-20240401001602055](doc/img/image-20240401001602055.png)
 
-3. 手动执行静态测试：可以点击菜单栏中的 `分析`进行手动执行
+3. 手动执行静态测试：可以点击菜单栏中的`分析`进行手动执行
 
     ![image-20240401001808089](doc/img/image-20240401001808089.png)
 
