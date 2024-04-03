@@ -50,7 +50,7 @@
 
 新建一个工程后，初始包含以下文件：
 
-- widget.hpp
+- `widget.hpp`
 
 ```c++
 #ifndef WIDGET_H
@@ -72,7 +72,7 @@ public:
 
 
 
-- main.cpp
+- `main.cpp`
 
 ```c++
 #include "widget.h"
@@ -96,35 +96,67 @@ int main(int argc, char *argv[])
 
 ```
 
+- `.pro` 文件，这在下一小节介绍
 
+## qmake/.pro 介绍
 
-## .pro 介绍
+**`qmake` 工具是一个帮助使用 `*.pro` 文件中的信息创建 `makefile` 的程序。这简单地意味着，使用非常简单的语法（与其他 `make` 系统中的更复杂语法相比），`qmake` 生成了编译和构建应用程序所需的所有必要命令，并将所有这些生成的文件放在 `Build` 文件夹中。**
+
+当构建 Qt 项目时，它首先创建一个新的构建文件夹，默认情况下，该文件夹与项目文件夹位于同一级别。在我们的例子中，这个文件夹应该有一个类似于 `build-Hello_Qt_OpenCV-Desktop_Qt_5_9_1_*-Debug` 的名称，其中 `*` 可能会有所不同，取决于平台，你可以在项目文件夹所在的同一个文件夹中找到它。Qt（使用 `qmake` 和本章中您将了解到的一些其他工具）和 C++ 编译器生成的所有文件位于此文件夹及其子文件夹中。这称为项目的构建文件夹。这也是您的应用程序被创建和执行的地方。例如，如果您使用的是 Windows，您可以在 `Build` 文件夹的 `debug` 或 `release` 子文件夹中找到 `Hello_Qt_OpenCV.exe` 文件（以及许多其他文件）。因此，从现在开始我们将称这个文件夹（及其子文件夹）为**构建文件夹**。
+
+例如，我们已经知道在我们的 Qt 项目文件中包含以下行会导致将 Qt 的 `core` 和 `gui` 模块添加到我们的应用程序中：
 
 ```makefile
-QT       += core gui  # Qt 中包含的模块
+QT += core gui
+```
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets  # 大于 4 版本；包含 widget 模块（Qt5 之前的版本 widget 是包含在 GUI 的）
+让我们进一步查看 `Hello_Qt_OpenCV.pro` 文件；以下几行立即引人注意：
 
-CONFIG += c++17
+```makefile
+TARGET = Hello_Qt_OpenCV
+TEMPLATE = app
+```
 
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+这几行简单地意味着 `TARGET` 名称是 `Hello_Qt_OpenCV`，这是我们项目的名称，`TEMPLATE` 类型 `app` 意味着我们的项目是一个**应用程序**。我们还有以下内容：
 
-# 源文件
+```makefile
 SOURCES += \
     main.cpp \
-    widget.cpp
-
+    mainwindow.cpp
 HEADERS += \
-    widget.h
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
-
+    mainwindow.h
+FORMS += \
+    mainwindow.ui
 ```
+
+很明显，这就是头文件、源文件和用户界面文件（表单）如何包含在我们的项目中的方式。
+
+在 `qmake` 处理了我们的 Qt 项目文件后，它开始寻找项目中提到的源文件。自然地，每个 C++ 程序在其源文件中都有一个 `main` 函数（一个单一且唯一的 `main` 函数）（不在头文件中），我们的应用程序也不例外。我们应用程序的 `main` 函数由 Qt Creator 自动生成，它位于 `main.cpp` 文件中。让我们打开 `main.cpp 文件`，看看它包含什么：
+
+```cpp
+#include "mainwindow.h"
+#include <QApplication>
+int main(int argc, char *argv[])
+{
+  QApplication a(argc, argv); // 应用程序对象 a，在 Qt 中有且仅有一个
+  MainWindow w;  // 窗口对象
+  w.show();  // 弹出窗口，以新窗口的的方式弹出（窗口默认不会弹出）
+  return a.exec(); // a.exec() 进入消息循环机制，避免程序一闪而过，类似死循环
+}
+```
+
+前两行用于包含我们当前的 `mainwindow.h` 头文件和 `QApplication` 头文件。**`QApplication` 类是负责控制应用程序的控制流、设置等的主类。**您在 `main` 函数中看到的，是 Qt 创建事件循环以及其底层信号/槽机制和事件处理系统工作方式的基础：
+
+```cpp
+QApplication a(argc, argv); // 应用程序对象 a，在 Qt 中有且仅有一个
+MainWindow w;  // 窗口对象
+w.show();  // 弹出窗口，以新窗口的的方式弹出（窗口默认不会弹出）
+return a.exec(); // a.exec() 进入消息循环机制，避免程序一闪而过，类似死循环
+```
+
+最简单地描述，就是创建了 `QApplication` 类的一个实例，并将应用程序参数（通常通过命令行或终端传递）传递给名为 `a` 的新实例。然后，创建了我们的 `MainWindow` 类的一个实例，然后通过 `.show()` 显示它。最后，调用 `QApplication` 类的 `.exec()` 函数，以便应用程序进入主循环，并保持打开状态，直到窗口关闭。
+
+要了解事件循环的真正工作方式，请尝试删除最后一行，看看会发生什么。当你运行你的应用程序时，你可能会注意到窗口实际上显示了非常短暂的时间，然后立即关闭。这是因为我们的应用程序不再有**事件循环**，它立即到达应用程序的结尾，内存中的所有内容都被清除了，因此窗口被关闭。现在，重新写回那行代码，正如你所期待的，窗口保持打开状态，因为 `.exec()` 函数只有在代码中某处（任何地方）调用了 `.exit()` 函数时才返回，并且它返回 `.exit()` 设置的值。
 
 
 
@@ -1938,6 +1970,8 @@ void Hello_Qt_OpenCV::loadSettings()
 ```
 
 
+
+## 多语言
 
 
 
