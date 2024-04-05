@@ -2256,7 +2256,190 @@ void Hello_Qt_OpenCV::loadSettings()
 
 
 
-## 多语言
+## 多语言支持
+
+在本节中，你将学习如何使用 Qt 框架创建支持多种语言的应用程序。实际上，这一切都归结为一个非常易于使用的类。`QTranslator` 类是 Qt 主要负责处理输出（显示）文本国际化的类。你只需要确保以下几点：
+
+1. **在构建项目时使用默认语言（例如英语）**。这意味着，对于显示的所有内容，简单地使用默认语言中的句子和单词。
+
+2. **确保==代码==中的所有字面句子，或者更具体地说，所有在选择不同语言时需要翻译的字面句子都用 `tr()` 函数包围起来**
+
+    - 例如，在==代码==中，原本一个 Dialog 的提示是 `"Are you sure you want to close this program?"`，只需将其传递给 `tr()` 函数并改写为 `tr("Are you sure you want to close this program?")`。**再次注意：这不适用于UI设计器，只适用于代码中的字面字符串**。
+
+        比如我们使用了代码设置一个按钮的文字：
+
+        ```c++
+        QMessageBox::warning(this,
+                            "Exit",
+                            "Are you sure you want to close this program?",
+                            QMessageBox::No | QMessageBox::Yes,
+                            QMessageBox::No);
+        
+        如果想让他支持多语言，要改为：
+        QMessageBox::warning(this,
+                            tr("Exit"),
+                            tr("Are you sure you want to close this program?"),
+                            QMessageBox::No | QMessageBox::Yes,
+                            QMessageBox::No);
+        ```
+
+    - 当在设计器中设置属性时，只需使用字面字符串，Qt 会自动检测。
+
+3. **在`*.pro`文件中指定你的翻译文件的文件名**。为此，你需要用 `TRANSLATIONS = translation_XX.ts` 指定它们，就像在项目文件中的 `SOURCES` 和 `HEADERS` 一样。
+
+    例如，如果你想在应用程序中添加俄语（`ru`）和中文（`zh_CN`）翻译，将以下内容添加到你的项目（`*.pro`）文件中：
+
+    ```properties
+    TRANSLATIONS = translation_ru.ts translation_zh_CN.ts
+    ```
+
+    确保为每个翻译文件使用清晰的名称。尽管你可以随意命名它们，但最好是包含语言代码（`zh_CN` 代表中文，`de` 代表德语等），如前面的示例所示。这也帮助 `Qt Linguist` 工具（正如你稍后将学习的）知道翻译的目标语言。
+
+    
+
+4. 使用 Qt Creater 内置的 `lupdate` 工具创建刚刚在 `.pro` 文件中指定的 `.ts` 文件（或如果它们已经存在，则更新它们）。为此需要点击主菜单中的 `Tools / External / Linguist / Update Translations (lupdate) `从 Qt Creator 中执行 `lupdate`。
+
+    ![image-20240405221205641](doc/img/image-20240405221205641.png)
+
+    运行此命令后，如果你进入你的项目文件夹，你会注意到项目文件中之前指定的 `.ts` 文件现在已经创建。
+
+    ![image-20240405221338549](doc/img/image-20240405221338549.png)
+
+    随着你的应用程序越来越大，定期运行 `lupdate` 是很重要的，以提取需要翻译的新字符串，并进一步扩展多语言支持。
+
+    > `lupdate` 是一个 Qt 工具，它搜索所有源代码和 UI 文件中的可翻译文本，然后创建或更新上一步中提到的 `.ts` 文件。负责翻译应用程序的人可以简单地使用 `Qt Linguist` 工具打开 `.ts` 文件，并简单地使用简单的用户界面专注于翻译应用程序。
+    >
+    > lupdate 位于 Qt 安装的 bin 文件夹内。例如，在 Windows 操作系统上，它的路径类似于此：
+    >
+    > ```properties
+    > C:\Qt\Qt5.9.1\5.9.1\msvc2015\bin 
+    > ```
+    >
+    > 对于 Windows 用户的重要说明：如果在运行 `lupdate` 后遇到任何问题，可能是因为 Qt 安装不正常。为了解决它，只需使用开发环境的命令提示符运行 lupdate。
+    >
+    > ```properties
+    > C:\Qt\Qt5.9.1\5.9.1\msvc2015\bin\lrelease.exe Hello_Qt_OpenCV.pro 
+    > ```
+
+    
+
+5. 使用 `Qt Linguist` 工具翻译所有必需的字符串。它已经安装在你的计算机上，因为它是默认 Qt 安装的一部分。
+
+    ![image-20240405214901715](doc/img/image-20240405214901715.png)
+
+    简单地选择 `File / Open` 并从你的项目文件夹中选择**所有**刚刚创建的 `.ts` 文件并打开它们。如果你已经按照所有指示操作到现在，那么在 Qt Linguist 中打开 `.ts` 文件后，你应该会看到以下界面：
+
+    ![image-20240405224122531](doc/img/image-20240405224122531.png)
+
+    Qt Linguist 允许快速轻松地翻译你项目中的所有可翻译元素。只需为所有显示的语言编写每个项目的翻译，**并使用顶部的工具栏将它们标记为`Done`**。确保在退出 Qt Linguist 工具之前保存。
+
+6. 使用翻译好的 `.ts` 文件创建 `.qm` 文件，这些文件是压缩的**二进制 Qt 语言文件**。为此，你需要**回到** Qt Creater，运行 `lrelease` 工具。使用 `lrelease` 与你在前面步骤中学到的 `lupdate` 类似：
+
+    ![image-20240405222211747](doc/img/image-20240405222211747.png)
+
+7. 将 `.qm` 文件（二进制语言文件）添加到你的应用程序资源中。
+
+    你已经学习了如何使用 Qt 资源系统。简单地创建一个名为 `translations` 的新前缀，并在该前缀下添加新创建的 `.qm` 文件。如果正确完成，你的项目中应该有以下内容：
+
+    ![image-20240405222533302](doc/img/image-20240405222533302.png)
+
+8. 你现在可以开始使用 `QTranslator` 类在你的应用程序中拥有多种语言，并且在运行时切换语言。
+
+    让我们再次回到我们的示例项目 `Hello_Qt_OpenCV`。在应用程序中使用翻译器有不同的方法，但现在我们将从最简单的方法开始。在你的 `mainwindow.h` 文件中添加 `#include <QTranslator>` 头文件，并在 `MainWindow` 类中定义两个私有的 `QTranslator` 对象，如下所示：
+
+    ```cpp
+    #include <QTranslator>
+    
+    ...
+    private:  
+    QTranslator* translator_ru;
+    QTranslator* translator_zh_CN;
+    ```
+
+9. 在 `MainWindow` 构造函数代码中，紧接着对 `loadSettings` 函数的调用之后，添加以下内容：
+
+    ```cpp
+    translator_ru = new QTranslator(this);
+    translator_ru->load(":/translations/translation_tr.qm"); 
+    
+    translator_zh_CN = new QTranslator(this);
+    translator_zh_CN->load(":/translations/translation_de.qm"); 
+    ```
+
+    > 可也以通过不使用指针的形式（直接在 `main.h` 加载）：
+    >
+    > ```cpp
+    > QTranslator language;
+    > language.load(":/language/language_zh_CN.qm");
+    > qApp->installTranslator(&language); // 全局对象指针是宏 qApp
+    > ```
+
+
+10. 现在，是时候在我们的项目中添加一个主菜单，并允许用户切换语言了。你可以通过在 Qt Creator 设计模式下右键点击窗口并选择创建菜单栏来做到这一点。然后，在顶部菜单栏中添加一个名为 `Language` 的项目。通过简单地点击并输入以下内容来添加三个子项目：
+
+    ![image-20240405232202230](doc/img/image-20240405232202230.png)
+
+    在设计器的底部，你可以找到操作编辑器。显然，你现在在这里有三个条目，这些条目是当你创建主菜单时自动创建的。它们中的每一个都对应于你在主菜单中输入的每一个语言名称。
+
+11. **通过信号和槽实现语言配置安装（注意 `qApp->installTranslator` 后，界面是不会变化的。还需要在 13 步中刷新界面）**
+
+    右键点击中文并选择转到槽，然后从列表中选择 `trigger()` 并点击 `OK`。为 `actionChinese` 和 `actionRussia` 对象的触发槽编写以下代码行：
+
+    ```cpp
+    void Hello_Qt_OpenCV::on_actionChinese_triggered()
+    {
+        qApp->installTranslator(this->translator_zh_CN);
+    }
+    
+    void Hello_Qt_OpenCV::on_actionRussia_triggered()
+    {
+        qApp->installTranslator(this->translator_ru);
+    }
+    ```
+
+12. **回到默认语言**。对 `actionEnglish` 对象做同样的处理。这次，你需要从你的应用程序中移除翻译器，因为英语是我们应用程序的默认语言：
+
+    ```cpp
+    void Hello_Qt_OpenCV::on_actionEnglish_triggered()
+    {
+        qApp->removeTranslator(this->translator_zh_CN);
+        qApp->removeTranslator(this->translator_ru);
+    }
+    ```
+
+    但是这不是一个合理的解决方案，以下是两种更好地解决方案：
+
+    - **重新加载默认翻译文件**：如果你有默认语言的翻译文件（即使它可能只是原始文本的直接复制），你可以通过加载这个默认语言的翻译文件来恢复默认语言。这类似于加载任何其他语言，只不过翻译文件中的文本是你的默认文本
+    - **使用空的翻译文件**：理论上，你可以创建一个没有任何翻译条目的翻译文件，并加载它，这样由于没有任何翻译应用，应用程序将显示源代码中的文本，即默认语言
+
+
+
+14. 好吧，我们现在已经将翻译放到（install）我们的 Qt 应用程序中了，我们还需要在**更改语言的时候刷新 UI**。为此，我们需要使用 `QMainWindow` 类的 `changeEvent`。每次使用前面的 `installTranslator` 和 `removeTranslator` 函数安装或移除翻译器时，都会向应用程序中的所有窗口发送语言更改事件。要捕获此事件，并确保我们的窗口在语言更改时重新加载，我们需要在程序中重写 `changeEvent()` 函数。
+
+    ```cpp
+    protected:
+        virtual void changeEvent(QEvent *event);
+    
+    ---
+      
+    void Hello_Qt_OpenCV::changeEvent(QEvent *event)
+    {
+        if (event->type() == QEvent::LanguageChange)
+        {
+            ui->retranslateUi(this);
+        }
+        else
+        {
+            QMainWindow::changeEvent(event); // 否则，一切应该像平时一样进行
+        }
+    }
+    ```
+
+    上述代码简单地意味着，如果更改事件是语言更改，则重新翻译窗口，否则，一切应该像平时一样进行。`retranslateUi` 函数是使用 `uic` 生成的（参考 `uic` 部分），它简单地负责根据应用程序中最新安装的 `QTranslator` 对象设置正确的翻译字符串。
+
+就是这样。你现在可以运行你的应用程序并尝试切换语言了。重要的是要注意，你在本节中学到的基本上适用于每个 Qt 应用程序，并且是制作多语言应用程序的标准方式。在应用程序中拥有不同语言的更定制化方式几乎会遵循相同的一套指令，**但与其使用资源文件将语言文件内置到应用程序中，不如从磁盘上的位置加载语言会更好。这样做的优势是可以更新翻译甚至添加新语言（需要一点更多的代码）而无需重新构建应用程序本身。**
+
+
 
 
 
@@ -2589,7 +2772,7 @@ K、易扩展：用户自定义类型可以容易地加入到测试数据和测�
 ```cpp
 BUTTONCLASS* button = WIDGET->findChild<BUTTONCLASS*>("name of the button");
 
-QPushButton * b = mediaPanel.findChild<QPushButton*>("name"); 
+QPushButton* b = mediaPanel.findChild<QPushButton*>("name"); 
 ```
 
 据我所知，这应该在不暴露 UI 指针的情况下为您提供小部件。
