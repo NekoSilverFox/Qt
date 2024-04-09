@@ -1,8 +1,9 @@
 <p align="center">
  <img width="100px" src="https://raw.githubusercontent.com/NekoSilverFox/NekoSilverfox/403ab045b7d9adeaaf8186c451af7243f5d8f46d/icons/silverfox.svg" align="center" alt="NekoSilverfox" />
  <h1 align="center">Qt</h1>
- <p align="center"><b>-------</b></p>
+ <p align="center"><b>【🔧更新中🔧】Qt 教程及案例实现</b></p>
 </p>
+
 
 
 <div align=center>
@@ -657,10 +658,15 @@ MainWindow::~MainWindow()
 
 一个主窗口**最多只有==一个==菜单栏**。位于主窗口顶部、主窗口标题栏下面。
 
+> **平台特定的行为：**
+>
+> - **Mac OS X：** 在 Mac OS X 上，`QMenuBar` 会被系统移动到屏幕的顶部，作为全局菜单栏存在，而不是作为应用程序窗口的一部分。**这意味着，即使应用程序的主窗口被关闭，菜单栏可能仍然可见**。这是 Mac OS X 的标准行为，以保持一致的用户体验。
+> - **Windows 和 Linux：** 在 Windows 和 Linux 上，`QMenuBar` 通常作为窗口的一部分，当窗口关闭时，菜单栏也会随之消失。
+
 - 创建**菜单栏**，通过 QMainWindow 类的 `QMenuBar* menuBar() const` 函数获取主窗口菜单栏指针
 
     ```c++
-    QMenuBar* menuBar = this->menuBat();
+    QMenuBar* menuBar = qMainWindow->menuBar();
     ```
 
     
@@ -2442,6 +2448,177 @@ void Hello_Qt_OpenCV::loadSettings()
 
 
 
+
+# 创建和使用插件
+
+在应用程序中使用插件是扩展应用程序最强大的方法之一，许多人日常使用的应用程序都从插件的强大功能中受益。**插件仅仅是一个库（在Windows上是`*.dll`，在Linux上是`*.so`等），它可以在运行时加载和使用，以处理特定任务，但当然，它不能像独立应用程序那样执行，并且它依赖于使用它的应用程序。**在本书中，我们也将使用插件来扩展我们的计算机视觉应用程序。
+
+在本节中，我们将学习如何创建一个示例应用程序（称为`Image_Filter`），**该应用程序仅仅加载和使用计算机上指定文件夹中的插件**。然而，在此之前，我们将学习如何在Qt中创建一个插件，该插件同时使用Qt和OpenCV框架，因为我们的插件很可能需要使用OpenCV库来执行一些计算机视觉魔法。那么，让我们开始吧。
+
+**首先，我们需要定义一组接口，这些接口是我们的应用程序与插件通信所需的。==在C++中，接口的等效物是具有纯虚函数的类==。**因此，我们基本上需要一个接口，其中包含我们期望插件中存在的所有函数。这就是一般创建插件的方式，也是第三方开发者为其他人开发的应用程序编写插件的方式。是的，他们知道插件的接口，并且只需要用真正做某事的实际代码来填充它。
+
+## 接口
+
+接口比它乍一看时更重要。是的，**它基本上是一个什么都不做的类**，但是，它为我们的应用程序所需的所有插件勾勒出了草图（框架），这一点将持续很长时间。因此，**我们需要确保从一开始就在插件接口中包含所有必需的函数，否则，之后添加、删除或修改函数可能几乎不可能。虽然目前我们正在处理一个示例项目，这看起来可能不那么严重，但在现实生活中的项目中，这些通常是决定应用程序扩展性的一些关键因素。**所以，现在我们知道了接口的重要性，我们可以开始为我们的示例项目创建一个接口了。
+
+打开 Qt Creator 创建一个 `Qt Console Application` 项目，然后添加头文件，
+
+![image-20240409173503236](doc/img/image-20240409173503236.png)
+
+然后添加`C++头文件`，输入`CvPluginInterface`作为文件的名称，并继续直到您处于代码编辑模式。将代码更改为以下内容：
+
+![image-20240409172336330](doc/img/image-20240409172336330.png)
+
+```cpp
+/**
+ * 插件接口 Interface
+ */
+
+#ifndef CVPLUGININTERFACE_H
+#define CVPLUGININTERFACE_H
+
+#include <QObject>
+#include <QString>
+#include "opencv2/opencv.hpp"
+
+class CvPluginInterface
+{
+public:
+    virtual ~CvPluginInterface() {}
+
+    virtual QString description() = 0;  // 返回插件说明
+    virtual void processImage(const cv::Mat &inputImage, cv::Mat &outputImage) = 0;
+};
+
+#define CVPLUGININTERFACE_IID "com.amin.cvplugininterface"  // 一个独一无二的字符串，采用类似包名格式
+Q_DECLARE_INTERFACE(CvPluginInterface, CVPLUGININTERFACE_IID)  // 宏将我们的类定义为接口。不包含这个宏，Qt将无法将我们的类识别为插件接口
+
+#endif // CVPLUGININTERFACE_H
+```
+
+您可能已经注意到，使用Qt Creator创建的任何**头文件**都会自动添加类似于以下的代码行：
+
+```cpp
+#ifndef CVPLUGININTERFACE_H 
+#define CVPLUGININTERFACE_H 
+... 
+#endif // CVPLUGININTERFACE_H 
+```
+
+这些代码简单地确保在应用程序编译期间，每个头文件只被包含/处理一次（防止重定义，也就是 vs studio 中的 `#promgramm once`）。在C++中，基本上有许多其他方法可以达到同样的目的，但这是最广泛接受和使用的方法，尤其是由Qt和OpenCV框架采用，以实现最高程度的跨平台支持。当使用Qt Creator工作时，它总是自动添加到头文件中，不需要额外工作。
+
+上述代码基本上是Qt中插件接口所需的全部内容。在我们的示例接口中，我们只需要插件支持两种简单的函数类型，但正如我们稍后将看到的，为了支持参数、语言等，我们需要的远不止这些。然而，对于我们的示例来说，这应该就足够了。
+
+【重点】对于C++开发者来说，一个非常重要的注意事项是，前面接口中的第一个公共成员 `virtual ~CvPluginInterface() {} `，它在C++中被称为**虚析构函数**，**是许多人忘记包含并且不太注意的最重要的方法之一，所以了解它的真正含义并记住==它以避免内存泄漏==是个好主意**，特别是在使用Qt插件时。
+
+**基本上，任何具有虚拟方法并且意图以==多态==方式使用的C++基类都必须包含==虚析构函数==。这有助于确保即使使用基类的指针访问它们（多态性）时，也能调用子类中的析构函数。不幸的是，使用大多数C++编译器时，当犯这种常见的C++编程错误时，你甚至不会收到警告。**
+
+> 1. **虚析构函数**的作用：当你有一个基类指针指向一个派生类对象时，如果基类的析构函数**不是**虚函数，那么当通过基类指针删除对象时，只有基类的析构函数会被调用。这将导致派生类中为释放资源而定义的析构逻辑不会执行，可能导致资源泄露。而**将基类的析构函数声明为虚函数后，删除对象时会首先调用派生类的析构函数，然后再调用基类的析构函数，从而保证了资源的正确释放。**
+>
+>     让我给你举一个具体的例子来展示如果基类的析构函数不是虚的，可能会导致什么样的问题。
+>
+>     假设我们有一个基类`Base`和一个从`Base`继承的派生类`Derived`。`Derived`类有自己的资源管理，比如动态分配的内存。如果`Base`的析构函数不是虚的，那么当我们通过`Base`类型的指针来删除一个`Derived`类型的对象时，只有`Base`的析构函数会被调用，而`Derived`的析构函数不会被调用。这可能会导致`Derived`分配的资源没有被释放，从而引发内存泄露。
+>
+>     下面是一个示例代码：
+>
+>     ```cpp
+>     #include <iostream>
+>     
+>     class Base {
+>     public:
+>         Base() { std::cout << "Base Constructor\n"; }
+>         ~Base() { std::cout << "Base Destructor\n"; }
+>     };
+>     
+>     class Derived : public Base {
+>     public:
+>         Derived() { std::cout << "Derived Constructor\n"; }
+>         ~Derived() { std::cout << "Derived Destructor\n"; }
+>     };
+>     
+>     int main() {
+>         Base* b = new Derived();  // 基类指针指向子类
+>         delete b; // 这里只会调用 Base 的析构函数
+>         return 0;
+>     }
+>     
+>     ---
+>     输出：
+>     /Users/fox/雪狸的文件/Programma/OpenMP/Cpp11Thread/untitled/cmake-build-debug/untitled
+>     Base Constructor
+>     Derived Constructor
+>     Base Destructor
+>     
+>     进程已结束，退出代码为 0
+>     ```
+>
+>     在这个例子中，`main`函数中我们创建了一个`Derived`类型的对象，但是用`Base`类型的指针来引用它。当我们删除这个对象时，由于`Base`的析构函数不是虚的，所以只有`Base`的析构函数被调用，`Derived`的析构函数不会被执行。这意味着如果`Derived`类中有特殊的资源释放逻辑（比如删除动态分配的内存），那么这些逻辑不会被执行，可能会导致资源泄露。
+>
+>     要修正这个问题，我们需要将`Base`类的析构函数声明为虚：
+>
+>     ```cpp
+>     class Base {
+>     public:
+>         Base() { std::cout << "Base Constructor\n"; }
+>         virtual ~Base() { std::cout << "Base Destructor\n"; } // 现在是虚的
+>     };
+>     
+>     ---
+>     输出：
+>     /Users/fox/雪狸的文件/Programma/OpenMP/Cpp11Thread/untitled/cmake-build-debug/untitled
+>     Base Constructor
+>     Derived Constructor
+>     Derived Destructor  // 可以看到子类的析构函数被执行了
+>     Base Destructor
+>     
+>     进程已结束，退出代码为 0
+>     ```
+>
+>     这样，当我们通过基类指针删除派生类对象时，析构函数的调用会遵循动态绑定，即先调用`Derived`的析构函数，然后调用`Base`的析构函数（构造-爸爸盖房子，析构-孩子拆房子），从而确保所有资源都被正确管理和释放。
+>
+> 2. **多态**的重要性：在C++中，多态允许我们通过基类的指针或引用来调用派生类的方法。如果基类将要被用作多态基类（即通过基类的指针或引用来访问派生类对象），则必须为这个基类提供虚析构函数。这样做确保了当通过基类的指针删除派生类对象时，能够正确地调用派生类的析构函数，避免内存泄漏。
+
+因此，我们的插件接口包括：
+
+- 一个名为`description()`的函数，旨在返回任何插件的描述和有关它的有用信息
+- 一个名为`processImage()`的函数，该函数将OpenCV的`Mat`类作为输入并返回一个作为输出。显然，在这个函数中，我们期望每个插件执行某种图像处理、滤镜等，并给出结果。
+
+之后，我们**使用`Q_DECLARE_INTERFACE`宏将我们的类定义为接口。不包含这个宏，Qt将无法将我们的类识别为插件接口。**`CVPLUGININTERFACE_IID`应该是一个独一无二的字符串，采用类似包名格式，但你基本上可以根据自己的偏好进行更改。
+
+
+
+确保将`cvplugininterface.h`文件保存到您选择的任何位置，然后关闭它。我们现在将创建一个使用此接口的插件。让我们使用OpenCV函数之一：`medianBlur`（模糊）。
+
+
+
+
+
+# Qt 常用类注意事项
+
+## QString
+
+QString 可以通过 `%数字` 和 `.arg(VAL1, VAL2,...)` 配合进行替换字符串中的变量，比如：
+
+```cpp
+QString("学生信息为姓名：%1，年龄：%2").arg(name, QString::number(age));
+```
+
+但是注意: `.arg(VAL, ...)` 中 `VAL` 必须为同类型（比如**都是** `QString` 或者**都是** `int`），否则无法正常输出。这时候可以改为链式调用，但是链式调用会降低效率（每次传递都会进行拷贝构造）。如以下例子：
+
+```cpp
+void foo(QString name, qint16 port)
+{
+  // 【错误】以下情况无法正常输出，因为 name 和 port 是不是同类型
+  qDebug() << QString("服务 %1 运行在端口 %2").arg(name, port);
+  
+  // 可以改为链式调用
+  qDebug() << QString("服务 %1 运行在端口 %2").arg(name).arg(port);
+  
+  // 【推荐】或者使用 QString::number() 进行类型转换
+  qDebug() << QString("服务 %1 运行在端口 %2").arg(name, QString::number(port)));
+}
+
+```
 
 
 
