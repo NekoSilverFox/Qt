@@ -2591,6 +2591,142 @@ Q_DECLARE_INTERFACE(CvPluginInterface, CVPLUGININTERFACE_IID)  // 宏将我们�
 
 
 
+## 插件
+
+我们现在将创建一个名为`median_filter_plugin`的插件，该插件使用我们的`CvPluginInterface`接口类。首先从主菜单中选择`文件`，然后`新建文件或项目`。然后，选择`库`和`C++库`，如下图所示：
+
+![image-20240409172608576](doc/img/image-20240409172608576.png)
+
+确保选择了`共享库 （Shared Lihrary）`作为类型，然后输入`MedianFilterPlugin`作为名称并点击`下一步`。选择桌面作为套件类型并点击前进。在`选择所需模块`页面，确保只选中了`QtCore`并继续点击`下一步`（最终点击`完成`），直到你进入Qt Creator的代码编辑器。
+
+![image-20240409221830554](doc/img/image-20240409221830554.png)
+
+我们基本上创建了一个Qt插件项目，正如你可能已经注意到的，插件项目的结构与我们到目前为止尝试的所有应用程序项目非常相似（除了它没有UI文件），这是因为插件实际上与应用程序没有什么不同，除了它不能自己运行。
+
+现在，将我们在上一步中创建的`cvplugininterface.h`文件**复制到新创建的插件项目文件夹中**。然后，通过在`项目`窗格中的项目文件夹上简单地右键点击并从弹出菜单中选择`添加现有文件`来将其添加到项目中，如下所示：
+
+![](doc/img/09784656-31f1-4aba-ac38-30ec71d92381.png)
+
+我们需要告诉Qt这是一个插件而不仅仅是任何库。为此，我们需要在我们的`*.pro`文件中添加以下内容
+
+```plaintext
+CONFIG += plugin 
+```
+
+现在，我们需要将OpenCV添加到我们的插件项目中，将以下内容添加到你的插件的`*.pro`文件中：
+
+> 前提是安装和配置了 OpenCV
+
+```cpp
+win32: {
+   include("c:/dev/opencv/opencv.pri")
+}
+
+unix: !macx {
+   CONFIG += link_pkgconfig
+   PKGCONFIG += opencv
+}
+
+unix: macx {
+  include(/Users/fox/AppInstall/opencv-4.9.0/build/opencv.pri)
+  INCLUDEPATH += "/usr/local/include"
+  LIBS += -L"/usr/local/lib" \
+   -lopencv_world
+}
+```
+
+当你在`*.pro`文件中添加一些代码，或者使用Qt Creator主菜单（和其他用户界面快捷方式）添加新类或Qt资源文件时，手动运行`qmake`是一个非常好的习惯，特别是如果你注意到Qt Creator与你的项目内容不同步。你可以通过选择`项目`窗格的右键菜单中的`运行qmake`来轻松做到这一点，如下图所示：
+
+![](doc/img/d98f4e88-7fdd-470a-89d5-4f7efac2936a.png)
+
+
+
+好的，场景已经设置好，我们可以开始编写我们的第一个 Qt+OpenCV 插件的代码了。正如你将在接下来的章节中看到的，我们将通过插件为我们的应用程序添加类似的功能；这样，我们将只关注开发插件，而不是为我们添加的每一个单独的功能修改整个应用程序。所以，熟悉并舒适地进行这一步骤非常重要。
+
+首先打开`median_filter_plugin.h`文件并按如下修改：
+
+```cpp
+#ifndef MEDIANFILTERPLUGIN_H
+#define MEDIANFILTERPLUGIN_H
+
+#include "MedianFilterPlugin_global.h"
+#include "../CvPluginInterface/CvPluginInterface.h"
+
+class MEDIANFILTERPLUGIN_EXPORT MedianFilterPlugin :
+    public QObject, public CvPluginInterface
+{
+    Q_OBJECT  // 支持信号和槽
+    Q_PLUGIN_METADATA(IID "com.amin.cvplugininterface")  // 用于在插件类定义中声明元数据，IID（Interface Identifier 接口标识符）
+    Q_INTERFACES(CvPluginInterface)  // 声明插件中实现的接口
+
+public:
+    MedianFilterPlugin();
+    ~MedianFilterPlugin() override;
+
+    QString description() override;  // 可以增加 override 标识符，表明为重写
+    void processImage(const cv::Mat &inputImage, cv::Mat &outputImage) override;
+};
+
+#endif // MEDIANFILTERPLUGIN_H
+```
+
+前面的代码大部分是当你创建`median_filter_plugin`项目时自动生成的。这就是基本的Qt库类定义的样子。然而，正是我们的添加使它变成了一个有趣的插件。让我们回顾前面的代码，看看实际上添加了什么：
+
+1. 首先，我们包含了`cvplugininterface.h`头文件。
+
+2. 然后，我们确保`Median_filter_plugin`类继承了`QObject`和`CvPluginInterface`。
+
+3. 之后，我们**添加了Qt所必须的宏，以便我们的库被识别为插件**。这意味着以下三行代码，
+
+    ```cpp
+    Q_OBJECT  // 支持信号和槽
+    Q_PLUGIN_METADATA(IID "com.amin.cvplugininterface")  // 在插件类定义中声明元数据，IID（Interface Identifier 接口标识符）
+    Q_INTERFACES(CvPluginInterface)  // 声明插件中实现的接口
+    ```
+
+    - 首先是`Q_OBJECT`宏，你在本章前面已经了解过，任何Qt类默认都应该存在，以允许Qt特定的能力（如信号和槽）；并且元对象处理器 `moc` 将会解析它
+    - 下一个是`Q_PLUGIN_METADATA(IDD "XXX.XXX.XXX")`，**它需要在插件的源代码中恰好出现一次，用于添加关于插件的元数据**。**`IID`** - Interface Identifier 的缩写，即**接口标识符**。在Qt插件系统中，每个插件都需要实现一个或多个接口，而IID就是用来唯一标识这些接口的。它通常是一个字符串，采用反向域名（包）表示法来保证全球唯一性。这样，Qt的插件加载器（`QPluginLoader`）就能通过IID来找到并加载提供了特定接口的插件。
+        **用途**：当你使用`QPluginLoader`加载一个插件时，插件加载器会检查插件提供的`IID`是否与加载器请求的`IID`相匹配。**只有当两者匹配时，插件才能被成功加载。这个机制确保了应用程序能够找到并仅加载那些提供了需要接口的插件。**
+    - 最后一个`Q_INTERFACES()`，需要声明插件中实现的接口
+
+    
+
+4. 然后，我们为我们的类添加了`description`和`processImage`函数的定义。这是我们真正定义插件做什么的地方，与仅仅有声明而没有实现的接口类相反。
+
+5. 最后，我们可以添加必要的更改和实际实现到`median_filter_plugin.cpp`文件。
+
+    ```cpp
+    Median_filter_plugin::~Median_filter_plugin() 
+    {} 
+    
+    QString Median_filter_plugin::description() 
+    { 
+      return "This plugin applies median blur filters to any image." 
+      " This plugin's goal is to make us more familiar with the" 
+      " concept of plugins in general."; 
+    } 
+    void Median_filter_plugin::processImage(const cv::Mat &inputImage, 
+      cv::Mat &outputImage) 
+    { 
+      cv::medianBlur(inputImage, outputImage, 5); 
+    }
+    ```
+
+    我们刚刚添加了类析构函数、`description`和`processImage`函数的实现。如你所见，
+
+    - `description`函数返回有关插件的有用信息，在这种情况下没有复杂的帮助页面，只是几句话；
+    - `processImage`函数简单地将`medianBlur`应用于图像
+
+现在你可以在项目上右键点击并选择`重新构建`，或者从主菜单的`构建`项中选择。这将创建一个插件文件，我们将在下一节中使用，通常位于与项目同级的 `build-*` 文件夹下。
+
+![image-20240409231412665](doc/img/image-20240409231412665.png)
+
+插件文件的扩展名可能因操作系统而异。例如，在Windows上应该是`.dll`，在macOS和Linux上是`.dylib`或`.so`等。
+
+
+
+
+
 
 
 # Qt 常用类注意事项
