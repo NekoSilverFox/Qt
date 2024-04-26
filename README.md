@@ -3031,6 +3031,68 @@ void Widget::paintEvent(QPaintEvent *)
 
 
 
+## 使用 Heob 检测内存泄漏
+
+> 此测试属于动态测试
+>
+> https://doc.qt.io/qtcreator/creator-heob.html#specifying-heob-settings
+
+Qt Creator 集成了[Heob](https://github.com/ssbssa/heob)用于检测缓冲区溢出和内存泄漏的堆观察器。您必须下载并安装 Heob 才能从 Qt Creator 运行它。
+
+**注意：Heob 目前仅在 Windows 上可用。经测试，macOS 和 Linux 系统暂不支持。**
+
+
+
+**安装步骤：**
+
+1. 下载和安装 Heob：访问 [Heob GitHub 仓库](https://github.com/ssbssa/heob)下载最新版本，并解压到合适的位置。
+
+2. 下载依赖库（针对 MinGW 用户）：注意，如果你使用了 `MinGw` 的进行编译，还需要下载 `dwarfstack` 这个[动态库](https://github.com/ssbssa/dwarfstack)，以便将 `.exe` 可执行文件的调试信息（如果可用）中的地址转换为源文件的行信息。
+
+    ![f6fdb606-c539-4b68-8da2-9c6ba6d3c615](doc/img/f6fdb606-c539-4b68-8da2-9c6ba6d3c615.png)
+
+    **下载 `dwarfstack` 之后，确保 `dwarfstack dll` 和 `Heob` 存放在同一目录。**
+
+    ![image-20240426154344765](doc/img/image-20240426154344765.png)
+
+    
+
+**配置和运行 Heob：**
+
+![image-20240426150510970](doc/img/image-20240426150510970.png)
+
+1. 启动 Qt Creator 并选择 **Analyze**>**Heob**
+
+2. 选择要使用的 Heob 设置配置文件，或选择 **New** 创建一个新的配置文件
+
+3. 在里面 `Heob path` 字段中，输入存放 Heob.exe 可执行文件的文件夹
+
+4. 指定运行检查的附加设置。有关可用选项的更多信息，请参阅[Specifying Heob Settings](https://doc.qt.io/qtcreator/creator-heob.html#specifying-heob-settings)
+
+    **运行参数：**
+
+    - **Leak details **列表：，确定进程退出时如何处理收集到的泄漏数据
+
+        - `None` 意味着没有收集泄漏数据。如果您激活泄漏类型检测，Heob 可能需要更多时间在进程退出时收集数据。
+        - `Simple` 将所有未释放的内存写入结果文件
+        - `Detect Leak Types` 解析所有静态和全局内存块以查找对泄漏的引用。可到达的块被标记为*可到达*并递归地检查其他引用。如果找到引用，则这些块将被标记*为间接可达*。检查其余块是否相互引用，并标记为*间接丢失*或*共同丢失*（如果块相互引用）。根本没有引用的块被标记为*“丢失”*。选择 `Detect Leak Types (Show Reachable)` 还将可到达的块记录在结果文件中。
+        - `Fuzzy Detect Leak Types` 如果内存块引用了任何地址，则将其标记为*可访问*或*间接丢失*。当与某些自定义分配器（例如`av_malloc()`在 中`ffmpeg`）一起使用时，此选项非常有用，这些分配器仅保留分配块内某处的地址，并且不直接引用分配块的开头。选择 `Detect Leak Types (Show Reachable)` 还将可到达的块记录在结果文件中。
+
+    - **Minimum leak size** 列表中，选择要检测的泄漏大小（以字节为单位）。
+
+    - **Control leak recording** 列表，选择**Off**记录所有泄漏。您无法在运行时更改泄漏记录。要启动 Heob 而不启动泄漏记录，请选择**On (Start Disabled)**。在 Heob 控制台中，打开**on**或者**off**,**clear**所有结果，或选择**show**将所有当前泄漏记录到结果文件中。在进程退出之前打开文件以查看其内容。
+
+    - **Extra arguments** 字段中，输入运行 Heob 的附加参数：
+
+        - 例如，使用该`-oleaks.html`选项将泄漏数据记录在 HTML 文件中。
+        - 与此选项一起，您可以使用该`-g2`选项在文件中直观地对泄漏进行分组，
+        - `-L1024`使用该选项在文件中记录最多 1024 字节的泄漏内容。
+
+        例如，`-oleaks.html -g2 -L1024`
+        
+
+5. 选择 **OK** 运行Heob开始内存泄漏检测
+
 # QTest
 
 > QTest 单元测试框架
