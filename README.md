@@ -2260,6 +2260,243 @@ void Hello_Qt_OpenCV::loadSettings()
 }
 ```
 
+## 基于 Qt 库实现日志记录工具
+
+可以使用  `QtLogging` 实现 **分类日志信息**：
+
+在Qt和C++开发环境中，我们可以使用Qt自带的日志记录系统来进行日志管理和调试。Qt提供了一个灵活的日志系统，包括多个宏来帮助在应用程序中实现详细的日志记录。
+
+> https://doc.qt.io/qt-6/qtlogging.html
+
+1. **分类日志信息**：
+
+    - `qDebug()`：用于输出调试信息。
+
+    - `qInfo()`：用于输出一般信息。
+
+    - `qWarning()`：用于输出警告信息。
+
+    - `qCritical()`：用于输出严重错误信息。
+
+    - `qFatal()`：用于输出致命错误信息，并且会终止程序。
+
+        
+
+2. **日志分类和过滤**的几种方法：
+
+    > **规则解释：**
+    >
+    > - `*.debug=false`：禁用所有调试日志。
+    > - `myapp.*=true`：启用名为 `myapp` 的日志类别的所有日志级别。
+
+    - Qt允许定义自己的日志类别，这样可以根据类别来过滤日志输出。这是通过 `QLoggingCategory`类实现的。
+
+        ```cpp
+        #include <QLoggingCategory>
+        
+        QLoggingCategory category("com.mycompany.myapp");
+        
+        void enableLogging(bool enable) {
+            category.setEnabled(QtDebugMsg, enable);
+            category.setEnabled(QtInfoMsg, enable);
+            category.setEnabled(QtWarningMsg, enable);
+            category.setEnabled(QtCriticalMsg, enable);
+        }
+        ```
+
+    - **在应用程序启动之前**通过**环境变量**（如 `QT_LOGGING_RULES`）来控制哪些类别的日志被启用或禁用。
+
+        - **在 Unix/Linux/macOS 系统中**： 在 shell 中，我们可以这样设置（临时）：
+
+            ```bash
+            export QT_LOGGING_RULES="*.debug=false"
+            ./your_application
+            ```
+
+            如果使用的是 `.bashrc` 或 `.profile`，我们可以在其中添加 `export QT_LOGGING_RULES="*.debug=false;myapp.*=true"`，这样每次启动终端时都会设置。
+
+        - **在 Windows 系统中**： 我们可以在命令行中设置（临时）：
+
+            ```cmd
+            set QT_LOGGING_RULES=*.debug=false;myapp.*=true
+            your_application.exe
+            ```
+
+            或者通过“系统属性” -> “高级” -> “环境变量”永久设置。
+
+    - **在 Qt 应用程序中动态设置**： 我们也可以在 Qt 应用程序中动态设置这个环境变量，但**要在任何日志调用之前设置**：
+
+        ```cpp
+        qputenv("QT_LOGGING_RULES", QByteArray("*.debug=false"));
+        或者
+        QLoggingCategory::setFilterRules("*.info=false");
+        ```
+
+        
+
+3. **高级配置**：
+
+    - 日志可以配置为输出到控制台、文件或其他任何选择的目标。
+
+    - 使用 `qInstallMessageHandler()` 函数，我们可以自定义日志消息的处理方式，比如将日志发送到网络或格式化输出。
+
+        
+
+为此，我们可以通过基于单例模式创建一个类来实现日志记录到文件：
+
+![image-20240428183403225](doc/img/image-20240428183403225.png)
+
+
+
+**通过编写 Logger 类来实现日志记录功能：**
+
+log.h
+
+```cpp
+#ifndef LOGGER_H
+#define LOGGER_H
+
+#include <QFile>
+#include <QDebug>
+#include <QHash>
+
+/**
+ * @brief 基于单例模式的 Logger 类
+ */
+class Logger
+{
+public:
+    static void init(const QString &path, const QString &date, const QString &sep);
+    static void msgOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg);
+    static void clean();
+
+private:
+    static QFile* _logFile; // 日志文件指针
+    static bool _isInit;    // 是否初始化
+    static QHash<QtMsgType, QString> _contextName;  // 日志级别和对应字符串
+    static QString _date;   // 日志中日期格式
+    static QString _sep;    // 日志中分隔符
+};
+
+#endif // LOGGER_H
+```
+
+log.cpp
+
+```cpp
+#include "logger.h"
+#include <QHash>
+#include <QDateTime>
+#include <QStandardPaths>
+
+QString Logger::_date = "yyyy-MM-dd hh:mm:ss";  // 默认日期格式
+QString Logger::_sep = " | ";                   // 默认分隔符
+QFile* Logger::_logFile = nullptr;
+bool   Logger::_isInit  = false;
+QHash<QtMsgType, QString> Logger::_contextName = {
+    {QtMsgType::QtDebugMsg,     " Debug  "},
+    {QtMsgType::QtInfoMsg,      "  Info  "},
+    {QtMsgType::QtWarningMsg,   "Warning "},
+    {QtMsgType::QtCriticalMsg,  "Critical"},
+    {QtMsgType::QtFatalMsg,     " Fatal  "}
+};
+
+/**
+ * @brief Logger::init 初始化 logger
+ * @param path log文件路径
+ * @param date 日期格式
+ * @param sep 分隔符
+ */
+void Logger::init(const QString &path, const QString &date, const QString &sep)
+{
+    if (_isInit) return;
+
+    _date = date;
+    _sep = sep;
+
+    _logFile = new QFile;
+    _logFile->setFileName(path);
+    if (!_logFile->open(QIODevice::Append | QIODevice::Text)) qDebug() << "[ERROR] Can not open file " << _logFile->errorString();
+    _logFile->resize(0);  // 将文件的大小调整为0字节。如果 _logFile 已经关联到一个实际的文件，这会导致该文件的内容被清空，即删除所有已写入的数据
+
+    // 自定义日志消息的处理方式，比如将日志发送到网络或格式化输出，这里告诉 Qt 所有log将使用我们的自定义函数处理
+    qInstallMessageHandler(Logger::msgOutput);
+
+    _isInit = true;
+}
+
+/**
+ * @brief Logger::msgOutput 我们自定义的日志处理函数
+ * @param type
+ * @param context
+ * @param msg
+ */
+void Logger::msgOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QTextStream stream(_logFile);
+    stream <<         QDateTime::currentDateTime().toString(_date)
+           << _sep << _contextName.value(type)
+           << _sep << QString(context.file)  // 文件名
+           << _sep << QString(context.function).section('(', -2, -2).section(' ', -1).section(':', -1)  // 函数名
+           << _sep << QString::number(context.line)  // 行号
+           << _sep << msg
+           << "\n";
+
+    _logFile->flush();  // 待写数据从缓冲区写入文件
+}
+
+void Logger::clean()
+{
+    if (_logFile != nullptr)
+    {
+        _logFile->close();
+        delete _logFile;
+    }
+}
+
+```
+
+在定义以上日志文件后，我们可以在自己所编写的其他文件中通过定义的 static 函数使用日志输出。
+
+```c++
+#include <QLoggingCategory>
+
+int main(int argc, char *argv[])
+{
+    QLoggingCategory::setFilterRules("*.debug=false");  // 设置日志级别
+
+    QApplication a(argc, argv);
+    
+    qDebug() << "This debug message should not be shown.";
+    qInfo() << "This info message will be shown.";
+    
+    widget w;
+    w.show();
+
+    return a.exec();
+}
+
+// =====================================================
+
+Widget::widget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::widget)
+{
+    ui->setupUi(this);
+    Logger::init("./log", "yyyy-MM-dd hh:mm:ss", " | ");  // 初始化 Logger
+}
+
+Widget::~widget()
+{
+    Logger::clean();  // 关闭日志文件
+    delete ui;
+}
+```
+
+
+
+
+
 
 
 ## 多语言支持
