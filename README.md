@@ -1873,9 +1873,7 @@ connect(ui->actionQMessageBox, &QAction::triggered,
 }); // END_LAMBDA
 ```
 
-Q
-
-MessageBox类的 static 函数优点是方便使用，缺点也很明显：非常不灵活。我们只能使用简单的几种形式。为了能够定制QMessageBox细节，我们必须使用QMessageBox的属性设置 API。如果我们希望制作一个询问是否保存的对话框，我们可以使用如下的代码：
+QMessageBox类的 static 函数优点是方便使用，缺点也很明显：非常不灵活。我们只能使用简单的几种形式。为了能够定制QMessageBox细节，我们必须使用QMessageBox的属性设置 API。如果我们希望制作一个询问是否保存的对话框，我们可以使用如下的代码：
 
 ```c++
 QMessageBox msgBox;
@@ -1916,9 +1914,10 @@ msgBox 是一个建立在栈上的QMessageBox实例。我们设置其
 
 - 包含头文件 `#include <QColorDialog>`
 
-`QColor color = QColorDialog::getColor(QColor(0, 255, 255));`，调用系统对话框，获取颜色值
+`QColor color = QColorDialog::getColor(const QColor &initial, QWidget *parent，const QString &title);`，调用系统对话框，获取颜色值
 
-- 参数 1：默认选择的颜色值 (r, g, b)
+- 参数 `const QColor &initial`：在颜色对话框打开的时候默认选择的颜色值 (r, g, b)，可以使用 `QColor(0, 255, 255)` 选择颜色，当然也可以使用通过 `Qt::black` 使用这类预设的颜色值
+- 参数 `QWidget *parent`：颜色对话框的父类，使用默认的 `nullptr` 可能会造成内存泄漏
 - 返回一个 `QColor` 颜色值
 
 
