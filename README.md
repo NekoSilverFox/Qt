@@ -21,6 +21,8 @@
 
 # 项目编号及备注
 
+> 注意：如果你是用的是 MacOS 系统开发 Qt。不建议使用 homebrew 所安装的 Qt 环境，因为其存在很多未修复的 bug。比如（有时候）在调用 QMessageBox 的时候会造成程序崩溃：https://bugreports.qt.io/browse/QTBUG-61660
+
 | 项目名                                                       | 说明                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 |                                                              |                                                              |
@@ -43,7 +45,7 @@
 | [047_QTcpFile](https://github.com/NekoSilverFox/Qt/tree/main/047_QTcpFile) | 传输文件案例（TCP 套接字的使用）                             |
 | [050_MySelfQQ](https://github.com/NekoSilverFox/Qt/tree/main/050_MySelfQQ) | 实现类似 QQ 的聊天软件                                       |
 |                                                              |                                                              |
-|                                                              |                                                              |
+| [070_QChartView_2D_Plot](https://github.com/NekoSilverFox/Qt/tree/main/070_QChartView_2D_Plot) | 借助 Qt 的 ChartView 绘制动态 2D 折线图                      |
 
 
 
@@ -3245,6 +3247,20 @@ void Widget::paintEvent(QPaintEvent *)
 
 
 
+# Qt 连接数据库
+
+> 本案例中使用 PostgreSQL 作为示例
+>
+> https://doc.qt.io/qt-6/qsqldatabase.html
+
+
+
+# 绘制动态2D函数图像
+
+> 可参考项目代码：[070_QChartView_2D_Plot 借助 Qt 的 ChartView 绘制动态 2D 折线图](https://github.com/NekoSilverFox/Qt/tree/main/070_QChartView_2D_Plot)
+
+
+
 # 测试
 
 ## 静态测试
@@ -3452,7 +3468,7 @@ QT += testlib
 
 
 
-## 使用
+**使用：**
 
 1. 如果 qmake 其用作构建工具，将以下内容添加到 `.pro` 中：
 

@@ -15,7 +15,7 @@ Widget::Widget(QWidget *parent)
      */
     chart = new QChart();
 
-    // QChart添加到ui中
+    // QChart添加到ui中，QChartView ≈ plt.show(): 用于在 Qt 界面中显示图表，QChartView 相当于一个窗口组件
     ui->chartView->setChart(chart);
 
     // 定义两个坐标轴，一个用作X轴，一个用作Y轴，把X轴范围设置为0-10并放置在坐标系的底部，Y轴范围设置为0-10并放置在坐标系的左边
