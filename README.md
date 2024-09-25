@@ -3280,15 +3280,7 @@ void Widget::paintEvent(QPaintEvent *)
 
     
 
-5. `QChart` 添加到ui中，`QChartView ≈ plt.show()`: 用于在 Qt 界面中显示图表，`QChartView` 是我们刚刚提升后的窗口组件
-
-    ```c++
-    ui->chartView->setChart(chart);
-    ```
-
-    
-
-6. 定义两个坐标轴，一个用作X轴，一个用作Y轴，并添加至 `chart` ，这里把X轴范围设置为0-10并放置在坐标系的底部，Y轴范围设置为0-10并放置在坐标系的左边
+5. 定义两个坐标轴，一个用作X轴，一个用作Y轴，并添加至 `chart` ，这里把X轴范围设置为0-10并放置在坐标系的底部，Y轴范围设置为0-10并放置在坐标系的左边
 
     ```c++
     axisX = new QValueAxis();
@@ -3305,12 +3297,13 @@ void Widget::paintEvent(QPaintEvent *)
 
     
 
-7. 创建一个 折线/平滑曲线/散点图 对象，添加至 `chart` ，并且设置图表中的元素（如点、线）的颜色
+6. 创建一个 折线/平滑曲线/散点图 对象，添加至 `chart` ，并且设置图表中的元素（如点、线）的颜色
 
     ```c++
     // QSplineSeries 用于创建和显示平滑的曲线。与 QLineSeries 不同，QSplineSeries 会根据数据点生成平滑的曲线，使得图表的线条看起来更自然，而不仅仅是直线连接各个数据点。
     splineSeries = new QSplineSeries(this);
     chart->addSeries(splineSeries);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
+    splineSeries->setName("splineSeries Data");  // 线的名字就是图例的名字
     splineSeries->setColor(Qt::blue);  // 设置曲线颜色
     splineSeries->attachAxis(axisX);
     splineSeries->attachAxis(axisY);
@@ -3318,6 +3311,7 @@ void Widget::paintEvent(QPaintEvent *)
     // 创建 QScatterSeries 显示原始数据点
     scatterSeries = new QScatterSeries(this);
     chart->addSeries(scatterSeries);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
+    scatterSeries->setName("scatterSeries Data");  // 线的名字就是图例的名字
     scatterSeries->setMarkerSize(5); // 设置点的大小
     scatterSeries->attachAxis(axisX);
     scatterSeries->attachAxis(axisY);
@@ -3326,7 +3320,15 @@ void Widget::paintEvent(QPaintEvent *)
 
     
 
-8.  **处理图表缩放和滚动**
+7. `QChart` 添加到ui中，`QChartView ≈ plt.show()`: 用于在 Qt 界面中显示图表，`QChartView` 是我们刚刚提升后的窗口组件
+
+    ```c++
+    ui->chartView->setChart(chart);
+    ```
+
+    
+
+8. **处理图表缩放和滚动**
 
     ```c++
     ui->chartView->setRenderHint(QPainter::Antialiasing);  // 为 `chartView` 启用抗锯齿以平滑显示
@@ -3356,11 +3358,9 @@ void Widget::paintEvent(QPaintEvent *)
         x++;
     });
     
-    // 启动定时器，每秒更新一次
-    timer->start(1000);
+    // 启动定时器，每0.1秒更新一次
+    timer->start(100);
     ```
-
-    
 
 # 文件读写
 

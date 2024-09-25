@@ -25,10 +25,6 @@ Widget::Widget(QWidget *parent)
     titleFont.setBold(true);     // 设置加粗
     chart->setTitleFont(titleFont);  // 应用字体设置到图表标题
 
-
-    // QChart添加到ui中，QChartView ≈ plt.show(): 用于在 Qt 界面中显示图表，QChartView 是我们刚刚提升后的窗口组件
-    ui->chartView->setChart(chart);
-
     // 定义两个坐标轴，一个用作X轴，一个用作Y轴，把X轴范围设置为0-10并放置在坐标系的底部，Y轴范围设置为0-10并放置在坐标系的左边
     axisX = new QValueAxis();
     chart->addAxis(axisX, Qt::AlignBottom);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
@@ -44,6 +40,7 @@ Widget::Widget(QWidget *parent)
     // QSplineSeries 用于创建和显示平滑的曲线。与 QLineSeries 不同，QSplineSeries 会根据数据点生成平滑的曲线，使得图表的线条看起来更自然，而不仅仅是直线连接各个数据点。
     splineSeries = new QSplineSeries(this);
     chart->addSeries(splineSeries);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
+    splineSeries->setName("splineSeries Data");  // 线的名字就是图例的名字
     splineSeries->setColor(Qt::blue);  // 设置曲线颜色
     splineSeries->attachAxis(axisX);
     splineSeries->attachAxis(axisY);
@@ -51,14 +48,23 @@ Widget::Widget(QWidget *parent)
     // 创建 QScatterSeries 显示原始数据点
     scatterSeries = new QScatterSeries(this);
     chart->addSeries(scatterSeries);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
+    scatterSeries->setName("scatterSeries Data");  // 线的名字就是图例的名字
     scatterSeries->setMarkerSize(5); // 设置点的大小
     scatterSeries->setColor(Qt::red);  // 设置散点颜色
     scatterSeries->attachAxis(axisX);
     scatterSeries->attachAxis(axisY);
     scatterSeries->setColor(Qt::darkYellow);
 
-    // 启用抗锯齿以平滑显示
-    ui->chartView->setRenderHint(QPainter::Antialiasing);
+
+    // QChart添加到ui中，QChartView ≈ plt.show(): 用于在 Qt 界面中显示图表，QChartView 是我们刚刚提升后的窗口组件，用于显示 QChart
+    ui->chartView->setChart(chart);
+
+    // 处理图表缩放和滚动
+    ui->chartView->setRenderHint(QPainter::Antialiasing);  // 为 `chartView` 启用抗锯齿以平滑显示
+    ui->chartView->setRubberBand(QChartView::RectangleRubberBand);  // 启用缩放
+    ui->chartView->setInteractive(true);  // 启用交互模式
+    ui->chartView->setRubberBand(QChartView::RectangleRubberBand);  // 启用缩放功能
+
 
     timer = new QTimer(this);
     connect(ui->btnStart, &QPushButton::clicked, this, &Widget::timerStart);
@@ -68,7 +74,7 @@ Widget::Widget(QWidget *parent)
 
 void Widget::timerStart()
 {
-    timer->start(50);
+    timer->start(10);
 }
 
 
