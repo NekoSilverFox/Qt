@@ -3239,7 +3239,128 @@ void Widget::paintEvent(QPaintEvent *)
 
 > **注意：如果后期对绘图版的状态做了更改，要使用 `update()` 进行更新，就像 OpenGL 那样**
 
+## 绘制动态2D函数图像
 
+> 可参考项目代码：[070_QChartView_2D_Plot 借助 Qt 的 ChartView 绘制动态 2D 折线图](https://github.com/NekoSilverFox/Qt/tree/main/070_QChartView_2D_Plot)
+>
+> Qt 图表：https://doc.qt.io/qt-6/qtcharts-overview.html
+>
+> https://www.cnblogs.com/zzzsj/p/14760234.html
+
+使用方法：
+
+1. 在 `.pro` 文件中添加 charts 模块
+
+    ```qt
+    QT       += charts
+    ```
+
+2. 用到`QChart`的文件中添加：`QT_CHARTS_USE_NAMESPACE`，或者：`using namespace QtCharts;`。但是在 MacOS 下，这一步可以省略。
+
+3. 通过界面设计器添加一个 `Graphics View`，并且右键提升为QChartView类
+
+    ![image-20240925125502545](doc/img/image-20240925125502545.png)
+
+4. 创建并且配置一个 `QChart` 容器，用于管理和显示数据系列（如折线图、柱状图、散点图等）。它负责图表的整体布局、标题、坐标轴、图例和图形的呈现。（相当于一个画布）
+
+    ```c++
+    QChart chart = new QChart();
+    
+    chart->legend()->setVisible(true);  // 显示图例
+    chart->legend()->setAlignment(Qt::AlignTop);  // 将图例放置在顶部
+    chart->setBackgroundBrush(QBrush(Qt::gray));  // 设置背景颜色
+    
+    // 创建字体并设置字体大小
+    chart->setTitle("My Chart Title sin(x)");
+    QFont titleFont;
+    titleFont.setPointSize(18);  // 设置标题字体大小为16
+    titleFont.setBold(true);     // 设置加粗
+    chart->setTitleFont(titleFont);  // 应用字体设置到图表标题
+    ```
+
+    
+
+5. `QChart` 添加到ui中，`QChartView ≈ plt.show()`: 用于在 Qt 界面中显示图表，`QChartView` 是我们刚刚提升后的窗口组件
+
+    ```c++
+    ui->chartView->setChart(chart);
+    ```
+
+    
+
+6. 定义两个坐标轴，一个用作X轴，一个用作Y轴，并添加至 `chart` ，这里把X轴范围设置为0-10并放置在坐标系的底部，Y轴范围设置为0-10并放置在坐标系的左边
+
+    ```c++
+    axisX = new QValueAxis();
+    chart->addAxis(axisX, Qt::AlignBottom);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
+    axisX->setTitleText("Title X Axis");
+    axisX->setTickCount(10);
+    axisX->setRange(0, 100);
+    
+    axisY = new QValueAxis();
+    chart->addAxis(axisY, Qt::AlignLeft);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则会报错！！！】
+    axisY->setTitleText("Title Y Axis");
+    axisY->setRange(-1.1, 1.1);
+    ```
+
+    
+
+7. 创建一个 折线/平滑曲线/散点图 对象，添加至 `chart` ，并且设置图表中的元素（如点、线）的颜色
+
+    ```c++
+    // QSplineSeries 用于创建和显示平滑的曲线。与 QLineSeries 不同，QSplineSeries 会根据数据点生成平滑的曲线，使得图表的线条看起来更自然，而不仅仅是直线连接各个数据点。
+    splineSeries = new QSplineSeries(this);
+    chart->addSeries(splineSeries);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
+    splineSeries->setColor(Qt::blue);  // 设置曲线颜色
+    splineSeries->attachAxis(axisX);
+    splineSeries->attachAxis(axisY);
+    
+    // 创建 QScatterSeries 显示原始数据点
+    scatterSeries = new QScatterSeries(this);
+    chart->addSeries(scatterSeries);  // 【！！！注意！！！：创建之后需要立刻放入chart！否则可能会出错！！！】
+    scatterSeries->setMarkerSize(5); // 设置点的大小
+    scatterSeries->attachAxis(axisX);
+    scatterSeries->attachAxis(axisY);
+    scatterSeries->setColor(Qt::darkYellow);
+    ```
+
+    
+
+8.  **处理图表缩放和滚动**
+
+    ```c++
+    ui->chartView->setRenderHint(QPainter::Antialiasing);  // 为 `chartView` 启用抗锯齿以平滑显示
+    ui->chartView->setRubberBand(QChartView::RectangleRubberBand);  // 启用缩放
+    ui->chartView->setInteractive(true);  // 启用交互模式
+    ```
+
+    
+
+9. 添加数据点到曲线，不需要手动刷新，会自动显示所添加的点。在绘制动态数据时，你需要时常更新数据点。你可以通过定时器来定时刷新图表上的数据：
+
+    ```c++
+    // 假设有个定时器控制图表更新
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [=]() {
+        // 更新数据点，示例数据更新
+        static int x = 0;
+        double y = qSin(x);
+      
+          // 动态调整 X 轴范围，使曲线保持在视图中
+        if (x > 100) {
+            axisX->setRange(x - 100, x); // 滚动视图，保持显示最新数据
+        }
+      
+        splineSeries->append(x, y);  // 添加新的数据点
+        scatterSeries->append(x, y);  // 添加到散点图
+        x++;
+    });
+    
+    // 启动定时器，每秒更新一次
+    timer->start(1000);
+    ```
+
+    
 
 # 文件读写
 
@@ -3252,12 +3373,10 @@ void Widget::paintEvent(QPaintEvent *)
 > 本案例中使用 PostgreSQL 作为示例
 >
 > https://doc.qt.io/qt-6/qsqldatabase.html
+>
+> https://ru.stackoverflow.com/questions/1478871/qpsql-driver-not-found
 
 
-
-# 绘制动态2D函数图像
-
-> 可参考项目代码：[070_QChartView_2D_Plot 借助 Qt 的 ChartView 绘制动态 2D 折线图](https://github.com/NekoSilverFox/Qt/tree/main/070_QChartView_2D_Plot)
 
 
 
