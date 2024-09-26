@@ -3243,9 +3243,12 @@ void Widget::paintEvent(QPaintEvent *)
 
 > 可参考项目代码：[070_QChartView_2D_Plot 借助 Qt 的 ChartView 绘制动态 2D 折线图](https://github.com/NekoSilverFox/Qt/tree/main/070_QChartView_2D_Plot)
 >
-> Qt 图表：https://doc.qt.io/qt-6/qtcharts-overview.html
+> Qt 图表官方说明：https://doc.qt.io/qt-6/qtcharts-overview.html
 >
-> https://www.cnblogs.com/zzzsj/p/14760234.html
+> 参考文档：
+>
+> - https://www.cnblogs.com/zzzsj/p/14760234.html
+> - https://www.cnblogs.com/LyShark/p/17923208.html
 
 使用方法：
 
@@ -3264,23 +3267,26 @@ void Widget::paintEvent(QPaintEvent *)
 4. 创建并且配置一个 `QChart` 容器，用于管理和显示数据系列（如折线图、柱状图、散点图等）。它负责图表的整体布局、标题、坐标轴、图例和图形的呈现。（相当于一个画布）
 
     ```c++
-    QChart chart = new QChart();
+    QChart* chart = new QChart();
     
     chart->legend()->setVisible(true);  // 显示图例
     chart->legend()->setAlignment(Qt::AlignTop);  // 将图例放置在顶部
     chart->setBackgroundBrush(QBrush(Qt::gray));  // 设置背景颜色
     
     // 创建字体并设置字体大小
-    chart->setTitle("My Chart Title sin(x)");
     QFont titleFont;
     titleFont.setPointSize(18);  // 设置标题字体大小为16
-    titleFont.setBold(true);     // 设置加粗
+    titleFont.setBold(true);     // 设置加粗 
+    
+    chart->setTitle("My Chart Title sin(x)");
     chart->setTitleFont(titleFont);  // 应用字体设置到图表标题
     ```
 
     
 
 5. 定义两个坐标轴，一个用作X轴，一个用作Y轴，并添加至 `chart` ，这里把X轴范围设置为0-10并放置在坐标系的底部，Y轴范围设置为0-10并放置在坐标系的左边
+
+    **并且注意：一个 `QValueAxis` 只能绑定到 一个 `Chart` 实例！不可以好几个 `Chart` 共用同一个`QValueAxis` 坐标轴**
 
     ```c++
     axisX = new QValueAxis();
@@ -3298,6 +3304,8 @@ void Widget::paintEvent(QPaintEvent *)
     
 
 6. 创建一个 折线/平滑曲线/散点图 对象，添加至 `chart` ，并且设置图表中的元素（如点、线）的颜色
+
+    **注意：确保系列和轴的正确顺序**：在将 `QSplineSeries` 和 `QScatterSeries` 添加到图表后，才附加到 `x` 和 `y` 轴，以确保不会出现无法附加系列的错误。
 
     ```c++
     // QSplineSeries 用于创建和显示平滑的曲线。与 QLineSeries 不同，QSplineSeries 会根据数据点生成平滑的曲线，使得图表的线条看起来更自然，而不仅仅是直线连接各个数据点。
