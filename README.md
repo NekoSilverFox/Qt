@@ -3012,6 +3012,24 @@ void foo(QString name, qint16 port)
 
 
 
+## QDataStream
+
+```
+// out << buf_hash; 【注意】通过 `<<` QDataStream 写入时，QDataStream 会在字符串的前面写入一个4字节的长度字段，表示接下来数据的长度
+
+out.writeRawData(buf_hash, buf_hash.size());
+```
+
+**示例：** 
+
+假设 buf_hash = "ABCD"。
+
+若使用 `out << buf_hash;`，写入结果实际上是 **==00 00 00 04==** 41 42 43 44，其中前 4 字节 `00 00 00 04` 为 `QDataStream**` **自动添加的长度信息**，后面才是字符串内容；若使用 `out.writeRawData(buf_hash, buf_hash.size());`，则写入结果仅为 41 42 43 44，即原始数据本身，不会附加额外的长度字段。
+
+**writeRawData() 则只负责把内存中的字节原样写出，不做任何额外封装。在协议开发、文件格式设计或哈希值写入等需要精确控制字节内容的场景中，应优先考虑 writeRawData()。**
+
+
+
 
 
 # 事件
@@ -3435,6 +3453,445 @@ void Widget::paintEvent(QPaintEvent *)
 
 
 # 文件读写
+
+## QDataStream
+
+> **QDataStream 是 Qt 中用于二进制序列化与反序列化的流类，能够将 int、QString、QByteArray 等数据类型按统一格式写入 QIODevice，也能按相同规则读回。它常用于文件存储、网络通信和数据传输。使用 `<<`/`>>` 操作符时，QDataStream 会按照自身的序列化格式处理数据，==部分类型会自动附带长度等附加信息==；若只想写入原始字节，则应使用 writeRawData()。**
+
+
+
+`QDataStream` 是 Qt 提供的一个**二进制数据流读写类**，用于把数据按照统一的==二进制==格式写入设备，或从设备中按相同格式读取数据。它通常配合 `QFile`、`QBuffer`、`QTcpSocket`、`QByteArray` 等 `QIODevice` 一起使用，适合做**文件存储、网络传输、进程间数据交换**这类场景。
+
+
+
+它的核心特点是：
+
+第一，**可以直接序列化 Qt 常用类型**。
+
+比如 int、double、QString、QByteArray 等，都可以直接用 `<<` 写入、用 `>>` 读出（输出/输入运算符）：
+
+```cpp
+QFile file("test.dat");
+file.open(QIODevice::WriteOnly);
+
+QDataStream out(&file);
+out << 123 << QString("hello");
+```
+
+读取时：
+
+```cpp
+QFile file("test.dat");
+file.open(QIODevice::ReadOnly);
+
+QDataStream in(&file);
+int a;
+QString str;
+in >> a >> str;
+```
+
+只要写入顺序和读取顺序一致，数据就能正确还原。
+
+---
+
+第二，**它写的是二进制，不是文本**。
+
+所以 QDataStream 写出来的内容通常不能直接用记事本看懂，但优点是体积更紧凑、读取更高效，也更适合协议通信。
+
+---
+
+第三，**它有自己的格式规则**。
+
+例如==写入 QString 时，并不是只写字符内容，通常还会附带长度信息==。所以：
+
+```
+out << str;
+```
+
+和
+
+```
+out.writeRawData(...)
+```
+
+不是一回事。
+
+前者是“按照 QDataStream 的序列化格式写入”：`[长度][内容]`
+
+后者是“原样写裸字节”。
+
+
+
+---
+
+第四，**读写双方必须遵守同样的格式**。
+
+例如你写入时是：
+
+```
+out << id << name << score;
+```
+
+那么读取时就必须按同样顺序：
+
+```
+in >> id >> name >> score;
+```
+
+如果顺序错了，或者写入用的是 <<，读取却按原始字节去解析，就会出问题。
+
+---
+
+第五，**可以设置版本、字节序、浮点精度**。
+
+这在跨版本、跨平台通信时很重要，例如：
+
+```cpp
+QDataStream out(&file);
+out.setVersion(QDataStream::Qt_5_15);
+out.setByteOrder(QDataStream::BigEndian);  // QDataStream::BigEndian 是 Qt 里 QDataStream 的一个字节序枚举值，表示按 大端序 读写二进制数据。
+```
+
+这样可以保证不同环境下数据格式一致。
+
+可以把它简单理解成：
+
+- QIODevice 是“数据通道”
+- QDataStream 是“按二进制规则往通道里写/读数据的工具”
+
+
+
+---
+
+
+
+## QTextStream
+
+> QTextStream 是 Qt 中用于文本读写的流类，主要配合 QIODevice、QFile 处理文本文件，它支持 <<、>>、readLine() 等操作，可将数据按==字符==形式写入文件、缓冲区或标准输入输出，也可按==单词==或==按行==读取文本内容。它适用于 txt 文件、日志、配置文件和控制台交互等场景。与 QDataStream 不同，QTextStream 面向的是可读文本，而不是二进制序列化数据。
+
+`QTextStream` 是 Qt 提供的一个**文本流读写类**，主要用于以**文本方式**读取和写入数据。它通常配合 `QFile`、`QBuffer`、`QByteArray`、标准输入输出等设备使用，适合处理 **txt 文件、日志文件、配置文件、命令行输入输出** 等场景。
+
+
+
+你可以把它理解成：
+
+**`QTextStream` 负责“把数据当作字符文本来处理”**，而不是像 `QDataStream` 那样按二进制格式处理。
+
+
+
+
+
+**一、基本作用**
+
+QTextStream 的主要功能有两个：
+
+1. **把文本写入设备**
+2. **从设备中按文本读取内容**
+
+
+
+例如写入一个文本文件：
+
+```
+QFile file("test.txt");
+if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    QTextStream out(&file);
+    out << "Hello Qt\n";
+    out << "Age: " << 18 << "\n";
+}
+```
+
+读取文本文件：
+
+```
+QFile file("test.txt");
+if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QTextStream in(&file);
+    QString line = in.readLine();
+}
+```
+
+
+
+------
+
+
+
+
+
+**二、特点**
+
+**1. 面向文本**
+
+`QTextStream` 处理的是“字符内容”，不是裸字节。
+
+比如写：
+
+```c++
+out << 123;
+```
+
+写入文件后看到的是字符 '1' '2' '3'，也就是文本 "123"，而不是整数 123 的二进制表示。
+
+
+
+------
+
+
+
+ **2. 可直接使用 `<<` 和 `>>`**
+
+它和 C++ 标准流的风格很像，使用起来比较自然：
+
+```c++
+QTextStream out(&file);
+out << "name=" << "milk" << "\n";
+```
+
+也可以读取：
+
+```c++
+QString name;
+QTextStream in(&file);
+in >> name;
+```
+
+不过要注意，>> 默认按**空白符分隔**读取，而不是按整行读取。
+
+------
+
+**3. 支持按行读取**
+
+这是它非常常用的功能：
+
+```c++
+QString line = in.readLine();
+```
+
+适合读取配置、日志、题目输入等逐行文本数据。
+
+常见写法：
+
+```
+while (!in.atEnd()) {
+    QString line = in.readLine();
+    qDebug() << line;
+}
+```
+
+------
+
+
+
+**4. 支持编码设置**
+
+QTextStream 可以处理文本编码问题。
+
+在 Qt 里，文本流会涉及 UTF-8、UTF-16、本地编码等。
+
+
+
+例如可以设置编码：
+
+```c++
+QTextStream in(&file);
+in.setEncoding(QStringConverter::Utf8);
+```
+
+这样读取 UTF-8 文件时更安全、更明确。
+
+------
+
+
+
+**三、常见使用场景**
+
+**1. 读写 txt 文件**
+
+```c++
+QFile file("note.txt");
+if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    QTextStream out(&file);
+    out << "学习笔记：QTextStream 用于文本读写。\n";
+}
+```
+
+
+
+**2. 读取配置类文本**
+
+```c++
+QFile file("config.ini");
+if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        qDebug() << line;
+    }
+}
+```
+
+
+
+**3. 控制台输入输出**
+
+```c++
+QTextStream cin(stdin);
+QTextStream cout(stdout);
+
+cout << "请输入姓名: " << Qt::flush;
+QString name = cin.readLine();
+cout << "你好, " << name << "\n";
+```
+
+
+
+------
+
+
+
+
+
+**四、和 QDataStream 的区别**
+
+最核心的区别是：
+
+- QTextStream：按**文本**处理，写入结果人能直接看懂
+- QDataStream：按==**二进制序列化格式**==处理，写入结果人通常看不懂
+
+
+
+例如写入数字 123：
+
+**`QTextStream`**
+
+```
+out << 123;
+```
+
+文件内容是：
+
+```
+123
+```
+
+
+
+**`QDataStream`**
+
+```
+out << 123;
+```
+
+文件内容是整数的二进制表示，不适合直接查看。
+
+
+
+所以：
+
+- 做日志、文本配置、导出纯文本：用 QTextStream
+- 做协议、结构化二进制文件、序列化：用 QDataStream
+
+------
+
+
+
+**五、常见注意点**
+
+**1. 读取运算符  `<<` 和 `>>` 会按空白分割**
+
+例如文件内容是：
+
+```
+hello world
+```
+
+若写：
+
+```
+QString s;
+in >> s;
+```
+
+读到的只是：
+
+```
+"hello"
+```
+
+因为空格后面的 world 会被当作下一个字段。
+
+如果想读整行，要用：
+
+```
+QString line = in.readLine();
+```
+
+------
+
+
+
+**2. 一般配合 QIODevice::Text 打开文件**
+
+例如：
+
+```
+file.open(QIODevice::ReadOnly | QIODevice::Text);
+```
+
+这样更符合文本文件处理习惯，也能正确处理换行
+
+------
+
+**3. 不适合精确控制字节协议**
+
+因为它是文本流，不适合写网络协议里的固定字节格式、哈希原始值、结构体裸数据这类内容。
+
+这种场景应该用 QDataStream 或 writeRawData()。
+
+------
+
+
+
+**六、一个完整示例**
+
+下面是一个简单的文本文件读写示例：
+
+```
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
+
+int main() {
+    QFile file("example.txt");
+
+    // 写文件
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << "Name: Alice\n";
+        out << "Age: 20\n";
+        file.close();
+    }
+
+    // 读文件
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            qDebug() << line;
+        }
+        file.close();
+    }
+
+    return 0;
+}
+```
+
+
+
+------
+
+
 
 
 
